@@ -19,22 +19,10 @@ public class Application {
             String select = sc.nextLine();
 
             if("1".equals(select)) {
-                while (true) {
-                    System.out.println("케릭터의 이름을 정해주세요");
-                    String name = sc.nextLine();
-
-                    if(name != null && !name.trim().equals("")){
-                        player = new Player(name);
-                        break;
-                    }
-
-                    System.out.println("잘못된 이름입니다. 다시 입력해주세요.");
-                }
+                player = generatePlayer(sc);
                 break;
             } else if("2".equals(select)) {
-                System.out.println("기존 케릭터 이름을 입력해주세요.");
-                String name = sc.nextLine();
-                System.out.println("기존 케릭명 : "+ name);
+                player = getPlayer(sc);
                 break;
             } else {
                 System.out.println("1 혹은 2만 입력 가능합니다.\n다시 입력해주세요");
@@ -51,8 +39,29 @@ public class Application {
                 System.out.println("종료합니다.");
                 break;
             }
-
-
         }
+    }
+
+    private static Player generatePlayer(Scanner sc) {
+        Player player;
+        while (true) {
+            System.out.println("케릭터의 이름을 정해주세요");
+            String name = sc.nextLine();
+
+            if(name != null && !name.trim().equals("")){
+                player = new Player(name);
+                break;
+            }
+
+            System.out.println("잘못된 이름입니다. 다시 입력해주세요.");
+        }
+        return player;
+    }
+
+    private static Player getPlayer(Scanner sc) {
+        System.out.println("기존 케릭터 이름을 입력해주세요.");
+        String name = sc.nextLine();
+        System.out.println("기존 케릭명 : "+ name);
+        return null;
     }
 }
