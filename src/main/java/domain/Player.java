@@ -5,8 +5,13 @@ package domain;
  * Blog : http://jojoldu.tistory.com
  * Github : http://github.com/jojoldu
  */
+
 public class Player {
     private String name;
+
+    public Player(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
