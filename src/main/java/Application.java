@@ -8,17 +8,11 @@ import java.util.Scanner;
 
 public class Application {
     public static void main(String[] args) {
-        System.out.println("========= Play Game =========");
+        System.out.println("========= Blackjack =========");
         Scanner sc = new Scanner(System.in);
-
-        while(true){
-            String input = sc.nextLine();
-            if(input.equals("exit")){
-                System.out.println("종료합니다.");
-                break;
-            }
-
-            
-        }
+        System.out.println("안녕하세요. 게이머님의 이름을 정해주세요.");
+        String gamerName = sc.nextLine();
+        System.out.println(gamerName+"님 반갑습니다.");
     }
+
 }
