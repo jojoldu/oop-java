@@ -65,5 +65,5 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
   - 카드를 오픈한다.
   
 ### 참고 자료
-[조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
-[OKKY fender님의 칼럼](http://okky.kr/article/358197)
+* [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
+* [OKKY fender님의 칼럼](http://okky.kr/article/358197)
