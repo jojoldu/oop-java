@@ -1,7 +1,4 @@
-import domain.CardDeck;
-import domain.Dealer;
-import domain.Gamer;
-import domain.Rule;
+import domain.*;
 
 import java.util.Scanner;
 
@@ -20,5 +17,7 @@ public class Game {
         Gamer gamer = new Gamer();
         Rule rule = new Rule();
         CardDeck cardDeck = new CardDeck();
+
+        System.out.println(cardDeck.toString());
     }
 }
