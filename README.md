@@ -1,18 +1,21 @@
 # 순수 Java로 이루어진 프로젝트
 객체지향을 이해하는데 있어 웹은 좋은 예제가 아니라는 자바지기(박재성님)의 이야기에 시작한 프로젝트 <br/>
-데이터베이스, Html을 전혀 사용하지 않기에 Java와 객체에 좀 더 집중한다. <br/>
-추가로 Git과 Gradle을 연동하였다. <br/>
-Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 Apache Commons Util이나 ObjectMapper 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단해서이다. <br/>
-각자의 취향에 따라 Git -> Svn, Gradle -> Maven 으로 변경해도 무방할 것 같다.
+
+![기본은해봤어요!](./images/기본.png)
+
+Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한적이 없던것 같아 데이터베이스, Html을 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다.. <br/>
+추가로 Git과 Gradle을 연동하였습니다. <br/>
+Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 Apache Commons Util이나 ObjectMapper 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단했습니다. <br/>
+각자의 취향에 따라 Git -> Svn, Gradle -> Maven 으로 변경해도 무방할 것 같습니다.
 
 ### 주제
-블랙잭 게임([나무위키](https://namu.wiki/w/%EB%B8%94%EB%9E%99%EC%9E%AD(%EC%B9%B4%EB%93%9C%EA%B2%8C%EC%9E%84)) 참고)을 개량해서 구현할 예정이다. <br/>
-블랙잭 규칙 전부를 구현하는건 지나친 감이 있어서 조금은 스펙아웃하였다. <br/>
-화면 구성은 모두 콘솔로 진행한다.
+블랙잭 게임([나무위키](https://namu.wiki/w/%EB%B8%94%EB%9E%99%EC%9E%AD(%EC%B9%B4%EB%93%9C%EA%B2%8C%EC%9E%84)) 참고)을 개량해서 구현할 예정입니다. <br/>
+블랙잭 규칙 전부를 구현하는건 지나친 감이 있어서 조금은 스펙아웃하였습니다. <br/>
+화면 구성은 모두 콘솔로 진행할 예정입니다..
 
 ### 블랙잭 규칙
 * 딜러와 게이머 단 2명만 존재한다.
-* 카드는 조커를 제외한 52장이다. (즉, 카드는 다이아몬드,하트,스페이드,클럽 무늬를 가진 A,2~9,K,Q,J 으로 이루어져있다.)
+* 카드는 조커를 제외한 52장이다. (즉, 카드는 다이아몬드,하트,스페이드,클럽 무늬를 가진 A,2~10,K,Q,J 으로 이루어져있다.)
 * 2~10은 숫자 그대로 점수를, K/Q/J는 10점으로, A는 1과 11 둘 중 하나로 계산할 수 있다.
 * 딜러와 게이머는 순차적으로 카드를 하나씩 뽑아 각자 2개의 카드를 소지한다.
 * 게이머는 얼마든지 카드를 추가로 뽑을 수 있다.
@@ -66,7 +69,7 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
   - 카드를 오픈한다.
 
 ### 1. 추상화된 코드 구현
-위의 "객체들의 속성과 역할"에 따라 간략하게 코드를 구현하면 아래와 같다. <br/>
+위의 "객체들의 속성과 역할"에 따라 간략하게 코드를 구현하면 아래와 같습니다. <br/>
 
 **Card.java** <br/>
 ```
@@ -92,7 +95,7 @@ public class Card {
 }
 
 ```
-Card의 pattern은 무늬를, denomination는 끗수(A,2~9,J,Q,K)를 나타낸다. <br/>
+Card의 pattern은 무늬를, denomination는 끗수(A,2~10,J,Q,K)를 얘기합니다. <br/>
 <br/>
 
 **CardDeck.java** <br/>
@@ -143,9 +146,9 @@ public class Rule {
 }
 ```
 
-return 타입이 void가 아닌 경우엔 null을 리턴하도록 하였다. <br/>
-위 선언된 5개의 Java파일만으로는 블랙잭 게임이 진행될 순 없다. <br/>
-실제로 게임을 진행시킬 Game.java를 구현해보자.<br/>
+return 타입이 void가 아닌 경우엔 null을 리턴하도록 하였습니다. <br/>
+위 선언된 5개의 Java파일만으로는 블랙잭 게임이 진행될 순 없습니다. <br/>
+실제로 게임을 진행시킬 Game.java를 구현해보겠습니다.<br/>
 
 **Game.java** <br/>
 ```
@@ -161,9 +164,9 @@ public class Game {
 }
 ```
 
-게임에 필요한 "클래스들의 인스턴스"를 생성시켰다. <br/>
-(객체가 아닌, xx클래스의 인스턴스이다.) <br/>
-그리고 이를 실행시킬 Application.java이다. <br/>
+게임에 필요한 "클래스들의 인스턴스"를 생성시켰습니다. <br/>
+(객체가 아닌, xx클래스의 인스턴스입니다.) <br/>
+그리고 이를 실행시킬 Application.java입니다. <br/>
 
 **Application.java** <br/>
 ```
@@ -176,23 +179,22 @@ public class Application {
 ```
 
 ### 2-1. 실제 코드 구현 (CardDeck)
-이제 좀 더 구체화된 코드를 작성해보자. <br/>
-첫번째 카드를 뽑기 위해 play에 아래 코드를 추가하자.
+이제 좀 더 구체화된 코드를 작성해보겠습니다. <br/>
+첫번째 카드를 뽑기 위해 play에 아래 코드를 추가하겠습니다.
 
 ```
 Card card = cardDeck.draw();
 ```
 
-CardDeck.draw가 실제로 카드를 뽑아줘야 하기 때문에 코드를 구체화 시켜야 한다. <br/>
-draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 이다. <br/>
-즉, CardDeck은 본인의 역할을 수행하기 위해 **52개의 서로 다른 카드가 존재** 해야만 한다. <br/>
-생성 되는 시점에는 이 조건을 만족해야만 하기 때문에 우린 **생성자** 를 사용할 것이다.<br/>
-생성자에서 CardDeck의 인스턴스가 생성될때 52개의 카드를 가지도록 코드를 작성하자. <br/>
-<br/>
+CardDeck.draw가 실제로 카드를 뽑아줘야 하기 때문에 코드를 구체화 시켜야 합니다. <br/>
+draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 입니다. <br/>
+즉, CardDeck은 본인의 역할을 수행하기 위해 **52개의 서로 다른 카드가 존재** 해야만 합니다. <br/>
+생성 되는 시점에는 이 조건을 만족해야만 하기 때문에 **생성자** 를 사용하겠습니다.<br/>
+
 **CardDeck.java** <br/>
 ```
     private static final String[] PATTERNS = {"spade", "heart", "diamond", "club"};
-    private static final int CARD_COUNT = 12;
+    private static final int CARD_COUNT = 13;
 
     public CardDeck() {
         cards = new ArrayList<>();
@@ -204,11 +206,11 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
 
                 if(i == 1){
                     denomination = "A";
-                }else if(i == 10){
-                    denomination = "J";
                 }else if(i == 11){
-                    denomination = "Q";
+                    denomination = "J";
                 }else if(i == 12){
+                    denomination = "Q";
+                }else if(i == 13){
                     denomination = "K";
                 }else {
                     denomination = String.valueOf(i);
@@ -222,15 +224,15 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
     }
 ```
 
-아주 빠르게 코드를 작성하면 위와 같이 작성할 수 있을것 같다. <br/>
-현재 코드에서는 몇가지 개선할 것들이 보인다. <br/>
-카드의 끗수(denomination)를 결정하는 부분은 생성자의 역할은 아니다. <br/>
-즉, 1~12라는 숫자를 통해 끗수를 정하는 것은 다른 메소드에서 해야할 일이다. <br/>
-그래서 numberToDenomination 라는 메소드를 통해 이 역할을 분리한다. <br/>
+아주 빠르게 코드를 작성하면 위와 같이 작성할 수 있을것 같습니다. <br/>
+현재 코드에서는 몇가지 개선할 것들이 보입니다. <br/>
+카드의 끗수(denomination)를 결정하는 부분은 생성자의 역할이 아닙니다. <br/>
+즉, 1~13 이라는 숫자를 통해 끗수를 정하는 것은 다른 메소드에서 해야할 일입니다. <br/>
+그래서 numberToDenomination 라는 메소드를 통해 이 역할을 분리하겠습니다. <br/>
 
 ```
     private static final String[] PATTERNS = {"spade", "heart", "diamond", "club"};
-    private static final int CARD_COUNT = 12;
+    private static final int CARD_COUNT = 13;
 
     public CardDeck() {
         cards = new ArrayList<>();
@@ -250,11 +252,11 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
 
         if(number == 1){
             return "A";
-        }else if(number == 10){
-            return "J";
         }else if(number == 11){
-            return "Q";
+            return "J";
         }else if(number == 12){
+            return "Q";
+        }else if(number == 13){
             return "K";
         }
 
@@ -262,7 +264,7 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
     }
 ```
 
-자 여기서 추가로, Card의 인스턴스를 생성하고 뒤에 set메소드를 통해 끗수(denomination)와 무늬(pattern)를 지정하는 코드를 개선해보자. <br/>
+자 여기서 추가로, Card의 인스턴스를 생성하고 뒤에 set메소드를 통해 끗수(denomination)와 무늬(pattern)를 지정하는 코드를 개선해보겠습니다. <br/>
 <br/>
 **Card.java**
 ```
@@ -294,7 +296,7 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
 **CardDeck.java**
 ```
     private static final String[] PATTERNS = {"spade", "heart", "diamond", "club"};
-    private static final int CARD_COUNT = 12;
+    private static final int CARD_COUNT = 13;
 
     public CardDeck() {
         cards = new ArrayList<>();
@@ -309,8 +311,8 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
     }
 ```
 
-기본 생성자+set메소를 통해 하지 않고, 기본 생성자를 지우고 인자가 추가된 생성자를 사용한 이유는 무엇일까? <br/>
-(참고로 Java는 생성자가 없으면 기본생성자가 자동 추가되며, 별도의 생성자가 추가되면 기본생성자가 추가되지 않는다.) <br/>
+기본 생성자+set메소를 사용하지 않고, 인자가 추가된 생성자를 사용한 이유는 무엇일까요? <br/>
+(참고로 Java는 생성자가 없으면 기본생성자가 자동 추가되며, 별도의 생성자가 추가되면 기본생성자가 추가되지 않습니다.) <br/>
 
 * 끗수와 무늬를 가지고 Card가 어떤 행위를 하는지 CardDeck은 몰라도 된다.
   - 즉, Card에서 끗수와 무늬를 마음대로 활용하더라도 CardDeck은 아무런 영향이 없다.
@@ -320,7 +322,7 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
 
 <br/>
 
-자 그럼 CardDeck이 잘 생성되는지 확인하기 위해 간단하게 출력을 시켜보겠다. <br/>
+자 그럼 CardDeck이 잘 생성되는지 확인하기 위해 간단하게 출력을 시켜보겠습니다. <br/>
 
 **Card.java**
 ```
@@ -364,7 +366,90 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
 
 ![CardDeck생성결과](./images/CardDeck생성자.png)
 
-이렇게 52개의 서로 다른 카드가 생성되었음을 확인할 수 있다. <br/>
+이렇게 52개의 서로 다른 카드가 생성되었음을 확인할 수 있습니다. <br/>
+바로 draw기능을 만들어 보겠습니다. <br/>
+draw는 2가지를 해야 합니다. <br/>
+
+* 남아 있는 카드 중 1개를 뽑는다.
+* 뽑은 카드는 카드덱에서 제거한다.
+
+이걸 간단하게 구현하면 아래와 같은 코드가 됩니다. <br/>
+
+```
+    public Card draw(){
+        int size = cards.size();
+        int select = (int)(Math.random()*size);
+        Card selectedCard = cards.get(select);
+        cards.remove(select);
+        return selectedCard;
+    }
+```
+
+코드를 작성한 것을 보면 몇가지 개선할 것이 있습니다. <br/>
+remove 기능은 랜덤하게 뽑힌 카드를 제거 하는 작업입니다. <br/>
+현실에서는 이 작업이 크게 어려운일이 아니지만, 코드속에서는 이 작업은 List별로 구현 방식이 큰 차이가 발생합니다.
+
+**ArrayList** <br/>
+
+![ArrayList의 remove](./images/arraylist-remove.png)
+
+ArrayList의 remove는 해당 인덱스의 인스턴스를 제거하고 **남은 데이터들을 다시 Copy 합니다.** <br/>
+즉, ArrayList는 중간중간 인스턴스를 제거하는 것은 결코 좋은 성능을 내지 못하는 것입니다. <br/>
+반면에 LinkedList의 경우는 remove를 아래와 같이 합니다. <br/>
+
+**LinkedList** <br/>
+
+![LinkedList의 remove](./images/linkedlist-remove1.png)
+
+![LinkedList의 unlink](./images/linkedlist-remove2.png)
+
+LinkedList의 remove와 remove에서 사용되는 unlink 메소드의 코드입니다. <br/>
+보시는것처럼 LinkedList의 remove는 해당 node와 연결을 맺고 있는 앞 뒤 node의 연결을 끊어버림으로써 remove를 하게됩니다. <br/>
+즉, 중간중간 인스턴스의 제거 혹은 추가의 경우는 LinkedList가 ArrayList보다 훨씬 더 좋은 성능을 보이게 됩니다. <br/>
+(좀 더 상세하게 알고 싶으시다면 [넥스트리의 블로그](http://www.nextree.co.kr/p6506/)를 추천드립니다. )<br/>
+자 그럼 CardDeck의 cards를 LinkedList로 교체하겠습니다. <br/>
+
+```
+cards = new LinkedList<>();
+```
+
+List라는 **인터페이스로 cards를 선언** 하였기에 구현체가 ArrayList가 되든, LinkedList가 되든 다른 코드를 수정할 필요가 없습니다. <br/>
+그리고 현재 draw에는 남아있는 카드들 중 하나를 뽑는 것과, 카드를 제거하는 것 2가리르 동시에 하고 있기에 <br/>
+이를 분리하겠습니다.
+
+```
+    public Card draw(){
+        Card selectedCard = getRandomCard();
+        cards.remove(selectedCard);
+        return selectedCard;
+    }
+
+    private Card getRandomCard() {
+        int size = cards.size();
+        int select = (int)(Math.random()*size);
+        return cards.get(select);
+    }
+```
+
+다른 메소드와 달리 getRandomCard는 접근 제한자를 private로 하였습니다. <br/>
+private 접근 제한자는 해당 클래스외에는 접근할 수가 없습니다. <br/>
+그래서 외부에서 사용되지 않는 메소드들은 private 접근제한자를 사용하여 타인이 별도로 찾아보지 않아도, 
+해당 메소드는 현재 클래스에서만 사용된다는 것을 명시하는 것이 더 좋습니다. <br/>
+<br/>
+여기까지 CardDeck을 구현하였습니다. <br/>
+차근차근 나머지 객체들 역시 진행하겠습니다. <br/>
+
+### 2-2. Dealer & Gamer 구현
+Dealer의 역할은 아래와 같습니다. <br/>
+
+* 추가로 카드를 받는다.
+* 뽑은 카드를 소유한다.
+* 카드를 오픈한다.
+
+이렇게 될 수 있었던 이유는 게임의 승패를 판단하는 것은 Rule 객체가, 카드를 뽑는 것은 카드덱 객체가 맡았기 때문입니다. <br/>
+그럼 위 3가지 역할만 구현해보겠습니다.
+
+  
 ### 참고 자료
 * [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
 * [OKKY fender님의 칼럼](http://okky.kr/article/358197)
