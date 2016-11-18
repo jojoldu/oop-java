@@ -16,7 +16,7 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
 ### 블랙잭 규칙
 * 딜러와 게이머 단 2명만 존재한다.
 * 카드는 조커를 제외한 52장이다. (즉, 카드는 다이아몬드,하트,스페이드,클럽 무늬를 가진 A,2~10,K,Q,J 으로 이루어져있다.)
-* 2~10은 숫자 그대로 점수를, K/Q/J는 10점으로, A는 1과 11 둘 중 하나로 계산할 수 있다.
+* 2~10은 숫자 그대로 점수를, K/Q/J는 10점으로, **A는 1과 11 둘 중 하나로** 계산할 수 있다.
 * 딜러와 게이머는 순차적으로 카드를 하나씩 뽑아 각자 2개의 카드를 소지한다.
 * 게이머는 얼마든지 카드를 추가로 뽑을 수 있다.
 * 딜러는 2카드의 합계 점수가 16점 이하이면 반드시 1장을 추가로 뽑고, 17점 이상이면 추가할 수 없다.
@@ -38,6 +38,9 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
 
 * 하나의 메소드는 하나의 일만 해야한다.
 
+* 처음부터 완벽한 설계는 없다.
+  - 설계를 구현해나가며 결과에 따라 설계를 수정할 수 도 있다.
+  
 ### 주요 객체
 * 카드뭉치 (카드덱)
 * 카드
@@ -52,7 +55,7 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
 
 * 카드
   - 다이아몬드, 하트, 스페이드, 클럽 중 1개의 무늬를 가지고 있다.
-  - A,2~9,K,Q,J 중 하나를 가지고 있다.
+  - A,2~10,K,Q,J 중 하나를 가지고 있다.
 
 * 규칙
   - 점수를 측정해준다.
@@ -60,6 +63,7 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
 
 * 딜러
   - 추가로 카드를 받는다.
+  - 단, 2카드의 합계 점수가 16점 이하이면 반드시 1장을 추가로 뽑고, 17점 이상이면 받을 수 없다.
   - 뽑은 카드를 소유한다.
   - 카드를 오픈한다.
 
@@ -114,7 +118,7 @@ public class CardDeck {
 public class Dealer {
     private List<Card> cards;
 
-    public void addCard(Card card) {}
+    public void receiveCard(Card card) {}
 
     public List<Card> openCards(){
         return null;
@@ -127,7 +131,7 @@ public class Dealer {
 public class Gamer {
     private List<Card> cards;
 
-    public void addCard(Card card) {}
+    public void receiveCard(Card card) {}
 
     public List<Card> openCards(){
         return null;
@@ -439,15 +443,60 @@ private 접근 제한자는 해당 클래스외에는 접근할 수가 없습니
 여기까지 CardDeck을 구현하였습니다. <br/>
 차근차근 나머지 객체들 역시 진행하겠습니다. <br/>
 
-### 2-2. Dealer & Gamer 구현
-Dealer의 역할은 아래와 같습니다. <br/>
-
+### 2-2. Gamer & Dealer 구현
+Gamer의 역할은 아래와 같습니다. <br/>
 * 추가로 카드를 받는다.
 * 뽑은 카드를 소유한다.
 * 카드를 오픈한다.
 
+receiveCard와 cards를 담을 구현체를 생성자에 추가하였습니다. <br/>
+
+```
+public class Gamer {
+    private List<Card> cards;
+
+    public Gamer() {
+        cards = new ArrayList<>();
+    }
+
+    public void receiveCard(Card card) {
+        this.cards.add(card);
+    }
+
+    public List<Card> openCards(){
+        return null;
+    }
+}
+```
+
+Gamer의 경우 사용자가 현재 카드들의 총 Point를 보며 카드를 더 뽑을지 말지를 결정하게 됩니다. <br/>
+이를 위해서는 Gamer에는 현재 카드들을 확인할 수 있어야 합니다. <br/>
+그래서 showCards라는 메소드를 통해 이 기능을 구현하겠습니다. <br/>
+**showCards는 Gamer의 역할** 입니다. 본인이 소유한 카드들의 목록을 보여주는 것이기 때문입니다. <br/>
+
+```
+    public void showCards(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("현재 보유 카드 목록 \n");
+
+        for(Card card : cards){
+            sb.append(card.toString());
+            sb.append("\n");
+        }
+
+        System.out.println(sb.toString());
+    }
+```
+
+Dealer의 역할은 아래와 같습니다. <br/>
+
+* 추가로 카드를 받는다.
+* 단, 2카드의 합계 점수가 16점 이하이면 반드시 1장을 추가로 뽑고, 17점 이상이면 받을 수 없다.
+* 뽑은 카드를 소유한다.
+* 카드를 오픈한다.
+
 이렇게 될 수 있었던 이유는 게임의 승패를 판단하는 것은 Rule 객체가, 카드를 뽑는 것은 카드덱 객체가 맡았기 때문입니다. <br/>
-그럼 위 3가지 역할만 구현해보겠습니다.
+그럼 위 역할들만 구현해보겠습니다.
 
   
 ### 참고 자료

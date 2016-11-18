@@ -30,8 +30,12 @@ public class Card {
         this.denomination = denomination;
     }
 
+    public int getPoint(){
+        return 0;
+    }
+
     @Override
     public String toString() {
-        return "Card{" + "pattern=" + pattern + ", denomination=" + denomination + "}";
+        return "pattern=" + pattern + ", denomination=" + denomination;
     }
 }
