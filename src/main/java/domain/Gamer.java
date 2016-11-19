@@ -32,6 +32,6 @@ public class Gamer {
     }
 
     public List<Card> openCards(){
-        return null;
+        return this.cards;
     }
 }
