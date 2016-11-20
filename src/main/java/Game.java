@@ -32,4 +32,10 @@ public class Game {
             gamer.showCards();
         }
     }
+
+    private void initPhase(){
+        for(int i=0;i<2;i++) {
+
+        }
+    }
 }
