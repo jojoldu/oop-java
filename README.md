@@ -1,9 +1,10 @@
 # 순수 Java로 이루어진 프로젝트
-객체지향을 이해하는데 있어 웹은 좋은 예제가 아니라는 자바지기(박재성님)의 이야기에 시작한 프로젝트 <br/>
+객체지향을 이해하는데 있어 웹은 좋은 예제가 아니라는 자바지기(박재성)님의 이야기에 시작한 프로젝트 <br/>
+Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한적이 없던것 같다는 생각이 있었습니다. <br/>
 
 ![기본은해봤어요!](./images/기본.png)
 
-Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한적이 없던것 같아 데이터베이스, Html을 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다.. <br/>
+그래서 데이터베이스, JSP를 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다. <br/>
 추가로 Git과 Gradle을 연동하였습니다. <br/>
 Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 Apache Commons Util이나 ObjectMapper 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단했습니다. <br/>
 각자의 취향에 따라 Git -> Svn, Gradle -> Maven 으로 변경해도 무방할 것 같습니다.
@@ -73,7 +74,11 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
   - 카드를 오픈한다.
 
 ### 1. 추상화된 코드 구현
-위의 "객체들의 속성과 역할"에 따라 간략하게 코드를 구현하면 아래와 같습니다. <br/>
+위의 "객체들의 속성과 역할"을 도식화 하면 아래와 같습니다. <br/>
+
+![객체관계도](./images/객체관계도.png)
+
+위 관계도에 따라 간략하게 코드를 구현하면 아래와 같습니다. <br/>
 
 **Card.java** <br/>
 ```
@@ -151,7 +156,7 @@ public class Rule {
 ```
 
 return 타입이 void가 아닌 경우엔 null을 리턴하도록 하였습니다. <br/>
-위 선언된 5개의 Java파일만으로는 블랙잭 게임이 진행될 순 없습니다. <br/>
+위 선언된 5개의 Java파일 만으로는 블랙잭 게임이 진행될 순 없습니다. <br/>
 실제로 게임을 진행시킬 Game.java를 구현해보겠습니다.<br/>
 
 **Game.java** <br/>
@@ -190,8 +195,8 @@ public class Application {
 Card card = cardDeck.draw();
 ```
 
-CardDeck.draw가 실제로 카드를 뽑아줘야 하기 때문에 코드를 구체화 시켜야 합니다. <br/>
-draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 입니다. <br/>
+CardDeck.draw 메소드는 실제로 카드를 뽑아줘야 하기 때문에 구체적된 코드를 작성해보겠습니다. <br/>
+draw는 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 라는 CardDeck의 유일한 역할을 하고 있습니다. <br/>
 즉, CardDeck은 본인의 역할을 수행하기 위해 **52개의 서로 다른 카드가 존재** 해야만 합니다. <br/>
 생성 되는 시점에는 이 조건을 만족해야만 하기 때문에 **생성자** 를 사용하겠습니다.<br/>
 
@@ -316,11 +321,11 @@ draw는 CardDeck의 유일한 역할인 **남아 있는 카드 중 랜덤한 1�
 ```
 
 기본 생성자+set메소를 사용하지 않고, 인자가 추가된 생성자를 사용한 이유는 무엇일까요? <br/>
-(참고로 Java는 생성자가 없으면 기본생성자가 자동 추가되며, 별도의 생성자가 추가되면 기본생성자가 추가되지 않습니다.) <br/>
+(참고로 Java는 생성자가 없으면 기본생성자가 자동 추가되며, 별도의 생성자가 추가되면 기본생성자가 자동 추가되지 않습니다.) <br/>
 
 * 끗수와 무늬를 가지고 Card가 어떤 행위를 하는지 CardDeck은 몰라도 된다.
   - 즉, Card에서 끗수와 무늬를 마음대로 활용하더라도 CardDeck은 아무런 영향이 없다.
-* Card는 끗수와 무늬가 필수임을 강제할 수 있다.
+* Card는 끗수와 무늬가 **필수임을 강제** 할 수 있다.
   - Card에 기본 생성자가 있으면 **끗수와 무늬가 없는 Card가 생성** 될 수 있다.
   - 하지만 이렇게 하게 되면 **끗수와 무늬가 없는 Card는 생성 될 수 없다**
 
@@ -398,7 +403,7 @@ remove 기능은 랜덤하게 뽑힌 카드를 제거 하는 작업입니다. <b
 ![ArrayList의 remove](./images/arraylist-remove.png)
 
 ArrayList의 remove는 해당 인덱스의 인스턴스를 제거하고 **남은 데이터들을 다시 Copy 합니다.** <br/>
-즉, ArrayList는 중간중간 인스턴스를 제거하는 것은 결코 좋은 성능을 내지 못하는 것입니다. <br/>
+즉, ArrayList는 중간중간 인스턴스를 제거하는 방식이 결코 좋은 성능을 내지 못하는 것입니다. <br/>
 반면에 LinkedList의 경우는 remove를 아래와 같이 합니다. <br/>
 
 **LinkedList** <br/>
@@ -418,8 +423,7 @@ cards = new LinkedList<>();
 ```
 
 List라는 **인터페이스로 cards를 선언** 하였기에 구현체가 ArrayList가 되든, LinkedList가 되든 다른 코드를 수정할 필요가 없습니다. <br/>
-그리고 현재 draw에는 남아있는 카드들 중 하나를 뽑는 것과, 카드를 제거하는 것 2가리르 동시에 하고 있기에 <br/>
-이를 분리하겠습니다.
+그리고 현재 draw에는 남아있는 카드들 중 하나를 뽑는 것과, 카드를 제거하는 것 2가지를 동시에 하고 있기에 이를 분리하겠습니다.<br/>
 
 ```
     public Card draw(){
@@ -499,10 +503,58 @@ Gamer의 경우 사용자가 현재 카드들의 총 Point를 보며 카드를 �
 ```
 
 자 그럼 여기까지 구현된 Gamer를 통해 Game.play 메소드 내용을 작성해보겠습니다. <br/>
-play에는 카드 뽑기 과정이 추가되었습니다.
-```
 
 ```
+    public void play(){
+        System.out.println("========= Blackjack =========");
+        Scanner sc = new Scanner(System.in);
+
+        Dealer dealer = new Dealer();
+        Gamer gamer = new Gamer();
+        Rule rule = new Rule();
+        CardDeck cardDeck = new CardDeck();
+
+        playingPhase(sc, cardDeck, gamer);
+    }
+
+    private void playingPhase(Scanner sc, CardDeck cardDeck, Gamer gamer) {
+        String gamerInput;
+        while(true){
+            System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
+            gamerInput = sc.nextLine();
+
+            if("0".equals(gamerInput)) {
+                break;
+            }
+
+            Card card = cardDeck.draw();
+            gamer.receiveCard(card);
+            gamer.showCards();
+        }
+    }
+```
+
+playingPhase 메소드를 통해 카드 뽑는 단계를 분리하였습니다. <br/>
+0은 종료, 그외에는 카드뽑기로 간주하여 진행이 됩니다. <br/>
+
+* CardDeck을 통해 카드를 뽑고, 
+* Gamer가 그 카드를 받고,
+* Gamer의 현재 카드를 확인
+
+여기서 중요한 점은 **Gamer는 CardDeck이 어떤 과정을 거쳐서 카드를 뽑아주는지 모른다는 것** 입니다. <br/>
+CardDeck 내부에서 (1) 남아 있는 카드 중 하나를 랜덤으로 뽑고, (2) 뽑은 카드는 목록에서 제거 라는 과정을 Gamer가 알 필요는 없다는 것이죠. <br/>
+Gamer는 단지 CardDeck에게 **카드 하나를 뽑아 달라는 요청만** 하면 되는 것입니다. <br/>
+<br/>
+이게 정말 중요한 내용입니다. <br/>
+객체는 다른 객체에게 요청을 할때, 이렇게 한뒤에 저렇게 하고 마지막으로 어떻게 해달라 라는 식으로 **세세하게 요청해서는 안됩니다.** <br/>
+객체는 본인의 역할에 충실하면 됩니다. <br/>
+CardDeck은 카드를 뽑아 주는 것에, <br/>
+Gamer는 CardDeck에게 카드를 받는 것에 충실해야 합니다.<br/>
+만일 각 객체의 책임이 모호하게 구현이 되어 있다면, 차후 변경이 있을 경우 어디까지 수정을 해야하는지 알 수 없는 상황이 올 수도 있습니다. <br/>
+
+
+
+다음 단계로 Dealer를 구현해보겠습니다. <br/>
 
 
 Dealer의 역할은 아래와 같습니다. <br/>

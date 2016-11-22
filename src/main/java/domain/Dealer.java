@@ -11,37 +11,42 @@ import java.util.List;
 public class Dealer {
     private List<Card> cards;
 
+    private static final int CAN_RECEIVE_POINT = 16;
+
     public Dealer() {
         cards = new ArrayList<>();
     }
 
-    public void receiveCard(Card card) {}
+    public void receiveCard(Card card) {
+        this.cards.add(card);
+    }
 
-    public int getCurrentPoint(){
-        int pointSum = 0;
-        int aceCount = 0;
+    private boolean isReceiveCard(){
+        return getMinPoint() <= CAN_RECEIVE_POINT;
+    }
+
+    private int getMinPoint(){
+        int sum = 0;
         for(Card card : cards) {
-            String denomination = card.getDenomination();
 
-            if("A".equals(denomination)){
-                aceCount +=1;
-            }else if("J".equals(denomination) || "Q".equals(denomination) || "K".equals(denomination)) {
-                pointSum += 10;
-            }else {
-                pointSum += Integer.parseInt(denomination);
-            }
         }
 
-        if(aceCount > 0) {
-            for(int i=0; i<aceCount; i++) {
+        return sum;
+    }
 
-            }
+    public void showCards(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("현재 보유 카드 목록 \n");
+
+        for(Card card : cards){
+            sb.append(card.toString());
+            sb.append("\n");
         }
 
-        return pointSum;
+        System.out.println(sb.toString());
     }
 
     public List<Card> openCards(){
-        return null;
+        return this.cards;
     }
 }
