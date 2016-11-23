@@ -1,5 +1,7 @@
 import domain.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -9,63 +11,57 @@ import java.util.Scanner;
  */
 public class Game {
     private static final int INIT_RECEIVE_CARD_COUNT = 2;
+    private static final String STOP_RECEIVE_CARD = "0";
 
     public void play(){
         System.out.println("========= Blackjack =========");
         Scanner sc = new Scanner(System.in);
-
-        Dealer dealer = new Dealer();
-        Gamer gamer = new Gamer();
         Rule rule = new Rule();
         CardDeck cardDeck = new CardDeck();
 
-        initPhase(cardDeck, gamer, dealer);
-        playingPhase(sc, cardDeck, gamer, dealer);
+        List<Player> players = Arrays.asList(new Gamer(), new Dealer());
+        initPhase(cardDeck, players);
+        playingPhase(sc, cardDeck, players);
     }
 
-    private void playingPhase(Scanner sc, CardDeck cardDeck, Gamer gamer, Dealer dealer) {
-        String gamerInput, dealerInput;
-        boolean isGamerTurn = false,
-                isDealerTurn = false;
-
+    private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
         while(true){
-            System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
-            gamerInput = sc.nextLine();
+            boolean isAllPlayerTurnOff = receiveAllPlayers(sc, cardDeck, players);
 
-            if("0".equals(gamerInput)) {
-                isGamerTurn = true;
-            }else{
-                Card card = cardDeck.draw();
-                gamer.receiveCard(card);
-                gamer.showCards();
-            }
-
-            System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
-            dealerInput = sc.nextLine();
-
-            if("0".equals(dealerInput)) {
-                isDealerTurn = true;
-            }else{
-                Card card = cardDeck.draw();
-                dealer.receiveCard(card);
-                dealer.showCards();
-            }
-
-            if(isGamerTurn && isDealerTurn){
+            if(isAllPlayerTurnOff){
                 break;
             }
-
         }
     }
 
-    private void initPhase(CardDeck cardDeck, Gamer gamer, Dealer dealer){
+    private boolean receiveAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        String agreeReceiveCard;
+        boolean isAllPlayerTurnOff = true;
+
+        for(Player player : players) {
+            System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
+            agreeReceiveCard = sc.nextLine();
+
+            if(STOP_RECEIVE_CARD.equals(agreeReceiveCard)) {
+                isAllPlayerTurnOff = true;
+            }else{
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+                player.showCards();
+                isAllPlayerTurnOff = false;
+            }
+        }
+
+        return isAllPlayerTurnOff;
+    }
+
+    private void initPhase(CardDeck cardDeck, List<Player> players){
         System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
         for(int i = 0; i< INIT_RECEIVE_CARD_COUNT; i++) {
-            Card card = cardDeck.draw();
-            gamer.receiveCard(card);
-
-            Card card2 = cardDeck.draw();
-            dealer.receiveCard(card2);
+            for(Player player : players) {
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+            }
         }
     }
 }

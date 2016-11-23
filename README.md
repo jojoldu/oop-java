@@ -908,6 +908,11 @@ Player 인터페이스는 단순합니다. Gamer와 Dealer의 공통점인 recei
 (참고로 **인터페이스는 상수와 추상메소드만 가질 수 있습니다.** <br/>
 반대로 추상 클래스는 상수,변수,일반메소드,추상메소드 모두를 가질 수 있습니다.) <br/>
 그리고 Player 인터페이스를 **구현(Implements)** 하도록 Gamer클래스와 Dealer클래스 코드를 수정하겠습니다.
+한가지 주의하셔야 할 점은, **추상 클래스와 상속은 최대한 피하는 것이 좋습니다.** [참고](http://kwon37xi.egloos.com/4634829) <br/>
+프로젝트 초기에는 못느끼지만, 프로젝트가 점점 커지고 운영기간이 3년, 4년 지나면서 상속과 추상 클래스로 범벅이 된 코드는 부모 클래스를 도저히 수정할 수 없는 지경에 이르게 됩니다. <br/>
+현재는 Dealer와 Gamer의 showCards 메소드와 openCards 메소드가 동일하지만, 시간이 지나서도 2개의 메소드 코드는 동일할 수 있을까요? <br/>
+receiveCard 메소드처럼 **똑같이 카드를 받는 역할이지만 구현은 다른 경우**가 과연 없을까요? <br/>
+서로 다른 객체는 최대한 느슨한 관계를 가지는 것이 좋습니다. <br/>
 
 ```
 public class Gamer implements Player {
@@ -937,13 +942,31 @@ public class Dealer implements Player {
 }
 ```
 이렇게 Gamer와 Dealer를 Player의 구현체로 보게 되면 이전의 중복된 코드를 하나의 코드로 해결할 수 있게 됩니다.<br/>
+먼저 가장 쉬운 코드인 initPhase 메소드를 수정해보겠습니다. <br/>
 
-한가지 주의하셔야 할 점은, **추상 클래스와 상속은 최대한 피하는 것이 좋습니다.** [참고](http://kwon37xi.egloos.com/4634829) <br/>
-프로젝트 초기에는 못느끼지만, 프로젝트가 점점 커지고 운영기간이 3년, 4년 지나면서 상속과 추상 클래스로 범벅이 된 코드는 부모 클래스를 도저히 수정할 수 없는 지경에 이르게 됩니다. <br/>
-현재는 Dealer와 Gamer의 showCards 메소드와 openCards 메소드가 동일하지만, 시간이 지나서도 2개의 메소드 코드는 동일할 수 있을까요? <br/>
-receiveCard 메소드처럼 **똑같이 카드를 받는 역할이지만 구현은 다른 경우**가 과연 없을까요? <br/>
-서로 다른 객체는 최대한 느슨한 관계를 가지는 것이 좋습니다. <br/>
-한쪽의 객체가 변경된다고해서 다른 객체가 변경되야하는 것은 피하는 것이 좋습니다. <br/>
+**Game.java**
+
+```
+    public void play(){
+        ...
+        List<Player> players = Arrays.asList(new Gamer(), new Dealer());
+        initPhase(cardDeck, players);
+        ...
+    }
+    
+    private void initPhase(CardDeck cardDeck, List<Player> players){
+        System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
+        for(int i = 0; i< INIT_RECEIVE_CARD_COUNT; i++) {
+            for(Player player : players) {
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+            }
+        }
+    }
+```
+
+
+
 
 
 ### 참고 자료
