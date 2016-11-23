@@ -8,7 +8,7 @@ import java.util.Scanner;
  * Github : http://github.com/jojoldu
  */
 public class Game {
-    private static final int INIT_CARD_COUNT = 2;
+    private static final int INIT_RECEIVE_CARD_COUNT = 2;
 
     public void play(){
         System.out.println("========= Blackjack =========");
@@ -19,6 +19,7 @@ public class Game {
         Rule rule = new Rule();
         CardDeck cardDeck = new CardDeck();
 
+        initPhase(cardDeck, gamer);
         playingPhase(sc, cardDeck, gamer);
     }
 
@@ -39,7 +40,8 @@ public class Game {
     }
 
     private void initPhase(CardDeck cardDeck, Gamer gamer){
-        for(int i=0;i<INIT_CARD_COUNT;i++) {
+        System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
+        for(int i = 0; i< INIT_RECEIVE_CARD_COUNT; i++) {
             Card card = cardDeck.draw();
             gamer.receiveCard(card);
         }
