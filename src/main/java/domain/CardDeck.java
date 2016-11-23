@@ -16,39 +16,20 @@ public class CardDeck {
     private static final int CARD_COUNT = 13;
 
     public CardDeck() {
-        cards = new LinkedList<>();
+        cards = this.generateCards();
+    }
+
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
 
         for(String pattern : PATTERNS){
             for(int i=1; i<=CARD_COUNT; i++) {
-                String denomination = this.numberToDenomination(i);
-                int point = this.numberToPoint(i);
-                Card card = new Card(pattern, denomination, point);
+                Card card = new Card(pattern, i);
                 cards.add(card);
             }
         }
-    }
 
-    private String numberToDenomination(int number){
-
-        if(number == 1){
-            return "A";
-        }else if(number == 11){
-            return "J";
-        }else if(number == 12){
-            return "Q";
-        }else if(number == 13){
-            return "K";
-        }
-
-        return String.valueOf(number);
-    }
-
-    private int numberToPoint(int number) {
-        if(number >= 11){
-            return 10;
-        }
-
-        return number;
+        return cards;
     }
 
     public Card draw(){

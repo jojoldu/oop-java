@@ -5,9 +5,9 @@ Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한�
 ![기본은해봤어요!](./images/기본.png)
 
 그래서 데이터베이스, JSP를 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다. <br/>
-추가로 Git과 Gradle을 연동하였습니다. <br/>
-Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 Apache Commons Util이나 ObjectMapper 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단했습니다. <br/>
-각자의 취향에 따라 Git -> Svn, Gradle -> Maven 으로 변경해도 무방할 것 같습니다. <br/>
+Gradle을 연동하였습니다. Apache Commons Util과 같은 순수 Java 라이브러리 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단하기도 했으며, <br/>
+목적은 어디까지나 웹이 아닌 환경에서 객제치향 코딩이기 때문입니다. <br/>
+각자의 취향에 따라 Gradle -> Maven 으로 변경해도 무방할 것 같습니다. <br/>
 모든 코드는 [Github](https://github.com/jojoldu/oop-java)에 있으니 전체 코드를 보고싶으시면 참고하시면 될것 같습니다. <br/>
 (공부한 내용을 정리하는 [Github](https://github.com/jojoldu/blog-code)와 세미나&책 후기를 정리하는 [Github](https://github.com/jojoldu/review) 를 star 하시면 실시간으로 feed를 받을 수 있습니다.)
 
@@ -275,7 +275,53 @@ draw는 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 라는 C
     }
 ```
 
-자 여기서 추가로, Card의 인스턴스를 생성하고 뒤에 set메소드를 통해 끗수(denomination)와 무늬(pattern)를 지정하는 코드를 개선해보겠습니다. <br/>
+numberToDenomination 메소드를 작성하게 되면 한가지 더 마음에 안드는 것이 보일것입니다. <br/>
+바로 52개의 Card List를 생성하는 코드입니다. <br/>
+이 코드 역시 생성자의 역할은 아닙니다. 생성자가 실행을 시킬 역할이 있을 뿐이지 실제 비지니스 로직을 알고 있어야 할 필요는 없습니다. <br/>
+그렇기에 이 역시 코드를 분리하도록 하겠습니다.
+
+```
+    private static final String[] PATTERNS = {"spade", "heart", "diamond", "club"};
+    private static final int CARD_COUNT = 13;
+
+    public CardDeck() {
+        cards = this.generateCards();
+    }
+    
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
+
+        for(String pattern : PATTERNS){
+            for(int i=1; i<=CARD_COUNT; i++) {
+                Card card = new Card();
+                String denomination = this.numberToDenomination(i);
+                card.setDenomination(denomination);
+                card.setPattern(pattern);
+                cards.add(card);
+            }
+        }
+
+        return cards;
+    }
+    
+    private String numberToDenomination(int number){
+
+        if(number == 1){
+            return "A";
+        }else if(number == 11){
+            return "J";
+        }else if(number == 12){
+            return "Q";
+        }else if(number == 13){
+            return "K";
+        }
+
+        return String.valueOf(number);
+    }
+
+```
+이렇게 분리하고 나면, 각 메소드는 하나의 역할에만 충실할 수 있게 되었습니다. <br/>
+여기서 추가로, Card의 인스턴스를 생성하고 뒤에 set메소드를 통해 끗수(denomination)와 무늬(pattern)를 지정하는 코드를 개선해보겠습니다. <br/>
 <br/>
 **Card.java**
 ```
@@ -306,23 +352,23 @@ draw는 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 라는 C
 
 **CardDeck.java**
 ```
-    private static final String[] PATTERNS = {"spade", "heart", "diamond", "club"};
-    private static final int CARD_COUNT = 13;
-
-    public CardDeck() {
-        cards = new ArrayList<>();
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
 
         for(String pattern : PATTERNS){
             for(int i=1; i<=CARD_COUNT; i++) {
                 String denomination = this.numberToDenomination(i);
                 Card card = new Card(pattern, denomination);
+                
                 cards.add(card);
             }
         }
+
+        return cards;
     }
 ```
 
-기본 생성자+set메소를 사용하지 않고, 인자가 추가된 생성자를 사용한 이유는 무엇일까요? <br/>
+기본 생성자와 set메소드를 사용하지 않고, 인자가 추가된 생성자를 사용한 이유는 무엇일까요? <br/>
 (참고로 Java는 생성자가 없으면 기본생성자가 자동 추가되며, 별도의 생성자가 추가되면 기본생성자가 자동 추가되지 않습니다.) <br/>
 
 * 끗수와 무늬를 가지고 Card가 어떤 행위를 하는지 CardDeck은 몰라도 된다.
@@ -627,8 +673,8 @@ Dealer에는 Gamer와 달리 16점 이하일 경우에만 추가로 카드를 �
 **CardDeck.java**
 
 ```
-    public CardDeck() {
-        cards = new LinkedList<>();
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
 
         for(String pattern : PATTERNS){
             for(int i=1; i<=CARD_COUNT; i++) {
@@ -638,6 +684,8 @@ Dealer에는 Gamer와 달리 16점 이하일 경우에만 추가로 카드를 �
                 cards.add(card);
             }
         }
+
+        return cards;
     }
     
     private int numberToPoint(int number) {
@@ -648,8 +696,9 @@ Dealer에는 Gamer와 달리 16점 이하일 경우에만 추가로 카드를 �
         return number;
     }    
 ```
-CardDeck의 생성자에는 point가 Card 인스턴스의 생성 인자로 추가 한뒤, <br/>
-numberToPoint 메소드에서 해당 Card의 Point값을 계산하는 역할을 담당하도록 작성하였습니다. <br/>
+generateCards 메소드에 Card 인스턴스의 생성 인자로 point가 추가 되며, <br/>
+numberToPoint 메소드에서 해당 Card의 point값을 계산하는 역할을 담당하도록 작성하였습니다. <br/>
+이렇게 작성될 경우 CardDeck이 생성될 때 52개 카드의 point도 자동으로 할당이 될 것입니다.  <br/>
 
 **Card.java**
 
@@ -662,6 +711,70 @@ numberToPoint 메소드에서 해당 Card의 Point값을 계산하는 역할을 
     }
 ```
 
+Card 클래스에는 point 생성자 인자값이 추가되는것 외에는 변경사항이 없습니다.<br/>
+<br/>
+여기까지 작성후, CardDeck 클래스를 보겠습니다. <br/>
+단지 52개의 카드만 생성하면 되는 CardDeck에 너무 많은 private 메소드가 있다는 생각이 들지 않으신가요? <br/>
+**하나의 클래스에 private 메소드가 많아지면 객체 설계를 다시 고민**해봐야 하는 신호로 보시면 됩니다. <br/>
+CardDeck의 책임에 대해 다시 생각해보면, <br/>
+CardDeck은 단지 서로 다른 52개의 카드만 생성하면 됩니다. <br/>
+즉, **반복문의 숫자가 변함에 따라 어떤 끗수가 할당 되는지에 대해서 전혀 책임이 없습니다.** <br/>
+이는 Card 객체의 책임입니다. <br/>
+그래서 이를 분리하도록 하겠습니다. <br/>
+
+**Card.java**
+
+```
+    public Card(String pattern, int index) {
+        this.pattern = pattern;
+        this.denomination = this.numberToDenomination(index);
+        this.point = this.numberToPoint(index);
+    }
+
+    private String numberToDenomination(int number){
+
+        if(number == 1){
+            return "A";
+        }else if(number == 11){
+            return "J";
+        }else if(number == 12){
+            return "Q";
+        }else if(number == 13){
+            return "K";
+        }
+
+        return String.valueOf(number);
+    }
+
+    private int numberToPoint(int number) {
+        if(number >= 11){
+            return 10;
+        }
+
+        return number;
+    }
+
+```
+CardDeck의 numberToDenomination와 numberToPoint를 Card 클래스로 이동하였습니다. <br/>
+그리고 생성자를 수정하여 반복문의 index가 들어오면 denomination과 point를 계산하도록 수정하였습니다. <br/>
+
+**CardDeck.java**
+```
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
+
+        for(String pattern : PATTERNS){
+            for(int i=1; i<=CARD_COUNT; i++) {
+                Card card = new Card(pattern, i);
+                cards.add(card);
+            }
+        }
+
+        return cards;
+    }
+```
+
+Card 객체로 역할을 분리했기 때문에 CardDeck은 반복문으로 Card 인스턴스를 생성만 하면 되도록 코드가 간결해졌습니다. <br/>
 ### 참고 자료
 * [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
 * [OKKY fender님의 칼럼](http://okky.kr/article/358197)
