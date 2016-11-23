@@ -21,7 +21,8 @@ public class CardDeck {
         for(String pattern : PATTERNS){
             for(int i=1; i<=CARD_COUNT; i++) {
                 String denomination = this.numberToDenomination(i);
-                Card card = new Card(pattern, denomination);
+                int point = this.numberToPoint(i);
+                Card card = new Card(pattern, denomination, point);
                 cards.add(card);
             }
         }
@@ -40,6 +41,14 @@ public class CardDeck {
         }
 
         return String.valueOf(number);
+    }
+
+    private int numberToPoint(int number) {
+        if(number >= 11){
+            return 10;
+        }
+
+        return number;
     }
 
     public Card draw(){

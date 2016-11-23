@@ -8,10 +8,12 @@ package domain;
 public class Card {
     private String pattern;
     private String denomination;
+    private int point;
 
-    public Card(String pattern, String denomination) {
+    public Card(String pattern, String denomination, int point) {
         this.pattern = pattern;
         this.denomination = denomination;
+        this.point = point;
     }
 
     public String getPattern() {
@@ -30,8 +32,12 @@ public class Card {
         this.denomination = denomination;
     }
 
-    public int getPoint(){
-        return 0;
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
     }
 
     @Override

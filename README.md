@@ -7,7 +7,9 @@ Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한�
 그래서 데이터베이스, JSP를 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다. <br/>
 추가로 Git과 Gradle을 연동하였습니다. <br/>
 Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 Apache Commons Util이나 ObjectMapper 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단했습니다. <br/>
-각자의 취향에 따라 Git -> Svn, Gradle -> Maven 으로 변경해도 무방할 것 같습니다.
+각자의 취향에 따라 Git -> Svn, Gradle -> Maven 으로 변경해도 무방할 것 같습니다. <br/>
+모든 코드는 [Github](https://github.com/jojoldu/oop-java)에 있으니 전체 코드를 보고싶으시면 참고하시면 될것 같습니다. <br/>
+(공부한 내용을 정리하는 [Github](https://github.com/jojoldu/blog-code)와 세미나&책 후기를 정리하는 [Github](https://github.com/jojoldu/review) 를 star 하시면 실시간으로 feed를 받을 수 있습니다.)
 
 ### 주제
 블랙잭 게임([나무위키](https://namu.wiki/w/%EB%B8%94%EB%9E%99%EC%9E%AD(%EC%B9%B4%EB%93%9C%EA%B2%8C%EC%9E%84)) 참고)을 개량해서 구현할 예정입니다. <br/>
@@ -17,7 +19,7 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
 ### 블랙잭 규칙
 * 딜러와 게이머 단 2명만 존재한다.
 * 카드는 조커를 제외한 52장이다. (즉, 카드는 다이아몬드,하트,스페이드,클럽 무늬를 가진 A,2~10,K,Q,J 으로 이루어져있다.)
-* 2~10은 숫자 그대로 점수를, K/Q/J는 10점으로, **A는 1과 11 둘 중 하나로** 계산할 수 있다.
+* 2~10은 숫자 그대로 점수를, K/Q/J는 10점으로, **A는 1로** 계산한다. (기존 규칙은 A는 1과 11 둘다 가능하지만 여기선 1만 허용하도록 스펙아웃)
 * 딜러와 게이머는 순차적으로 카드를 하나씩 뽑아 각자 2개의 카드를 소지한다.
 * 게이머는 얼마든지 카드를 추가로 뽑을 수 있다.
 * 딜러는 2카드의 합계 점수가 16점 이하이면 반드시 1장을 추가로 뽑고, 17점 이상이면 추가할 수 없다.
@@ -40,8 +42,8 @@ Java/Spring/Git/Gradle을 분리해서 생각하지 못하는 분들도 있고 A
 * 하나의 메소드는 하나의 일만 해야한다.
 
 * 처음부터 완벽한 설계는 없다.
-  - 설계를 구현해나가며 결과에 따라 설계를 수정할 수 도 있다.
-  
+  - 설계를 코드로 구현해가는 과정에서 수정이 필요하다면 설계를 수정한다.
+
 ### 주요 객체
 * 카드뭉치 (카드덱)
 * 카드
@@ -329,7 +331,6 @@ draw는 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 라는 C
   - Card에 기본 생성자가 있으면 **끗수와 무늬가 없는 Card가 생성** 될 수 있다.
   - 하지만 이렇게 하게 되면 **끗수와 무늬가 없는 Card는 생성 될 수 없다**
 
-<br/>
 
 자 그럼 CardDeck이 잘 생성되는지 확인하기 위해 간단하게 출력을 시켜보겠습니다. <br/>
 
@@ -366,7 +367,7 @@ draw는 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 라는 C
         Gamer gamer = new Gamer();
         Rule rule = new Rule();
         CardDeck cardDeck = new CardDeck();
-        
+
         System.out.println(cardDeck.toString());
     }
 ```
@@ -441,13 +442,13 @@ List라는 **인터페이스로 cards를 선언** 하였기에 구현체가 Arra
 
 다른 메소드와 달리 getRandomCard는 접근 제한자를 private로 하였습니다. <br/>
 private 접근 제한자는 해당 클래스외에는 접근할 수가 없습니다. <br/>
-그래서 외부에서 사용되지 않는 변수/메소드들은 private 접근제한자를 사용하여 타인이 코드만 보고도, 
+그래서 외부에서 사용되지 않는 변수/메소드들은 private 접근제한자를 사용하여 타인이 코드만 보고도,
 **해당 변수/메소드는 현재 클래스에서만 사용된다는 것을 명시** 하는 것이 더 좋습니다. <br/>
 <br/>
 여기까지 CardDeck을 구현하였습니다. <br/>
 차근차근 나머지 객체들 역시 진행하겠습니다. <br/>
 
-### 2-2. Gamer & Dealer 구현
+### 2-2. Gamer 구현
 Gamer의 역할은 아래와 같습니다. <br/>
 * 추가로 카드를 받는다.
 * 뽑은 카드를 소유한다.
@@ -537,7 +538,7 @@ Gamer의 경우 사용자가 현재 카드들의 총 Point를 보며 카드를 �
 playingPhase 메소드를 통해 카드 뽑는 단계를 분리하였습니다. <br/>
 0은 종료, 그외에는 카드뽑기로 간주하여 진행이 됩니다. <br/>
 
-* CardDeck을 통해 카드를 뽑고, 
+* CardDeck을 통해 카드를 뽑고,
 * Gamer가 그 카드를 받고,
 * Gamer의 현재 카드를 확인
 
@@ -551,12 +552,64 @@ Gamer는 단지 CardDeck에게 **카드 하나를 뽑아 달라는 요청만** �
 CardDeck은 카드를 뽑아 주는 것에, <br/>
 Gamer는 CardDeck에게 카드를 받는 것에 충실해야 합니다.<br/>
 만일 각 객체의 책임이 모호하게 구현이 되어 있다면, 차후 변경이 있을 경우 어디까지 수정을 해야하는지 알 수 없는 상황이 올 수도 있습니다. <br/>
+그러므로 다른 객체에게 요청하는 일은 최대한 해당 **객체를 믿고 맡기는 것**이 좋습니다.<br/><br/>
+playingPhase 메소드 작성이 끝났다면, 이제 initPhase 메소드 작성을 진행하겠습니다. <br/>
+initPhase는 블랙잭 규칙에 따라 처음 시작시 **Dealer와 Gamer가 2장씩의 카드를 받는 역할**을 담당할 예정입니다. <br/>
 
+ ```
+     private static final int INIT_RECEIVE_CARD_COUNT = 2;
+     private void initPhase(CardDeck cardDeck, Gamer gamer){
+         System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
+         for(int i=0;i<INIT_RECEIVE_CARD_COUNT;i++) {
+             Card card = cardDeck.draw();
+             gamer.receiveCard(card);
+         }
+     }
+```
 
+구현부는 크게 어려울 것이 없습니다. <br/>
+단순히 for문을 통해 카드를 뽑아 gamer에게 카드를 전달해준 것이 전부입니다. (Dealer는 차후 챕터에서 코드를 추가할 예정입니다.) <br/>
+여기서 눈여겨 보셔야할 것은 for문의 반복횟수인 2회를 static 상수로 선언한 것입니다. <br/>
+``` i<2```로 작성해도 똑같은 기능이 작동될 것입니다. 그럼에도 이렇게 상수로 선언한 이유는 **매직넘버**를 피하기 위함입니다. <br/>
+
+>매직넘버란 정체를 알 수 없지만 특정 기능을 하는 마법의 숫자를 얘기합니다. <br/>
+여기서는 처음 시작시 카드를 받는 횟수인 2를 변수나 상수에 담지 않고, 코드에서 그대로 사용하게 되면 매직넘버가 됩니다.
+
+매직넘버를 피해야 하는 이유는 다음과 같습니다. <br/>
+* 의미가 모호합니다.
+  - 단순히 2라는 숫자만 있으면 어떤 의미인지 알 수가 없습니다. 이로인해 다른 개발자는 전체 맥락과 코드를 읽어야만 하는 상황이 발생합니다.
+  - 상수 혹은 변수명으로 의도를 명확히 하는 것이 좋습니다.
+* 변경범위를 확인하기 어렵습니다.
+  - 똑같이 2를 사용하는 A라는 메소드가 하나 더있다고 생각해봅시다.
+  - 초반 카드뽑기 횟수가 2->3으로 늘어날 경우 A메소드의 2도 3으로 변경해야 할까요? 변경하는 것은 확실한가요?
+  - 특히나 0, 1, 10 등 빈번하게 사용되는 숫자를 전부 매직넘버로 처리할 경우 히스토리를 알지못하면 변경시 치명적인 버그를 발생시킬 수 있습니다.
+
+initPhase 메소드 작성이 끝났으니 play메소드에 initPhase 실행부도 추가하겠습니다.
+```
+    public void play(){
+        System.out.println("========= Blackjack =========");
+        Scanner sc = new Scanner(System.in);
+
+        Dealer dealer = new Dealer();
+        Gamer gamer = new Gamer();
+        Rule rule = new Rule();
+        CardDeck cardDeck = new CardDeck();
+
+        initPhase(cardDeck, gamer);
+        playingPhase(sc, cardDeck, gamer);
+    }
+```
+그리고 현재까지의 코드를 실행시키겠습니다.
+
+![initPhase](./images/initphase.png)
+
+처음 2장의 카드가 포함되어 총 3장의 카드가 출력되는 것을 확인할 수 있습니다. <br/>
+Gamer와 관련된 코드는 여기까지입니다. <br/>
+다음은 Dealer의 구현부를 작성해보겠습니다.
+
+### 2-3. Dealer 구현
 
 다음 단계로 Dealer를 구현해보겠습니다. <br/>
-
-
 Dealer의 역할은 아래와 같습니다. <br/>
 
 * 추가로 카드를 받는다.
@@ -565,9 +618,50 @@ Dealer의 역할은 아래와 같습니다. <br/>
 * 카드를 오픈한다.
 
 이렇게 될 수 있었던 이유는 게임의 승패를 판단하는 것은 Rule 객체가, 카드를 뽑는 것은 카드덱 객체가 맡았기 때문입니다. <br/>
-그럼 위 역할들만 구현해보겠습니다.
+그럼 위 역할들만 구현해보겠습니다. <br/>
+Dealer에는 Gamer와 달리 16점 이하일 경우에만 추가로 카드를 받을 수 있다는 제한이 있습니다. <br/> 
+이를 구현하기 위해 각 카드별로 포인트를 가질 수 있도록 하는 것이 좋습니다. <br/>
+해당 기능은 카드를 뽑을때마다 계산할 수도 있지만, 처음 **CardDeck에서 카드를 생성할 때 저장**하는 것이 반복적인 작업이 줄어들기 때문에 CardDeck 부분을 수정하도록 하겠습니다. <br/>
+<br/>
 
-  
+**CardDeck.java**
+
+```
+    public CardDeck() {
+        cards = new LinkedList<>();
+
+        for(String pattern : PATTERNS){
+            for(int i=1; i<=CARD_COUNT; i++) {
+                String denomination = this.numberToDenomination(i);
+                int point = this.numberToPoint(i);
+                Card card = new Card(pattern, denomination, point);
+                cards.add(card);
+            }
+        }
+    }
+    
+    private int numberToPoint(int number) {
+        if(number >= 11){
+            return 10;
+        }
+
+        return number;
+    }    
+```
+CardDeck의 생성자에는 point가 Card 인스턴스의 생성 인자로 추가 한뒤, <br/>
+numberToPoint 메소드에서 해당 Card의 Point값을 계산하는 역할을 담당하도록 작성하였습니다. <br/>
+
+**Card.java**
+
+```
+    private int point;
+    public Card(String pattern, String denomination, int point) {
+        this.pattern = pattern;
+        this.denomination = denomination;
+        this.point = point;
+    }
+```
+
 ### 참고 자료
 * [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
 * [OKKY fender님의 칼럼](http://okky.kr/article/358197)
