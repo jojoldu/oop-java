@@ -8,17 +8,19 @@ import java.util.List;
  * Blog : http://jojoldu.tistory.com
  * Github : http://github.com/jojoldu
  */
-public class Gamer {
+public class Gamer implements Player {
     private List<Card> cards;
 
     public Gamer() {
         cards = new ArrayList<>();
     }
 
+    @Override
     public void receiveCard(Card card) {
         this.cards.add(card);
     }
 
+    @Override
     public void showCards(){
         StringBuilder sb = new StringBuilder();
         sb.append("현재 보유 카드 목록 \n");
@@ -31,6 +33,7 @@ public class Gamer {
         System.out.println(sb.toString());
     }
 
+    @Override
     public List<Card> openCards(){
         return this.cards;
     }

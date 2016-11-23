@@ -8,7 +8,7 @@ import java.util.List;
  * Blog : http://jojoldu.tistory.com
  * Github : http://github.com/jojoldu
  */
-public class Dealer {
+public class Dealer implements Player {
     private List<Card> cards;
 
     private static final int CAN_RECEIVE_POINT = 16;
@@ -17,23 +17,29 @@ public class Dealer {
         cards = new ArrayList<>();
     }
 
+    @Override
     public void receiveCard(Card card) {
-        this.cards.add(card);
+        if(this.isReceiveCard()){
+            this.cards.add(card);
+        }else{
+            System.out.println("카드의 총 합이 17이상입니다. 더이상 카드를 받을 수 없습니다.");
+        }
     }
 
     private boolean isReceiveCard(){
-        return getMinPoint() <= CAN_RECEIVE_POINT;
+        return getPointSum() <= CAN_RECEIVE_POINT;
     }
 
-    private int getMinPoint(){
+    private int getPointSum(){
         int sum = 0;
         for(Card card : cards) {
-
+            sum += card.getPoint();
         }
 
         return sum;
     }
 
+    @Override
     public void showCards(){
         StringBuilder sb = new StringBuilder();
         sb.append("현재 보유 카드 목록 \n");
@@ -46,6 +52,7 @@ public class Dealer {
         System.out.println(sb.toString());
     }
 
+    @Override
     public List<Card> openCards(){
         return this.cards;
     }

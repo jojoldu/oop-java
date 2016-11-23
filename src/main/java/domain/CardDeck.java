@@ -1,6 +1,5 @@
 package domain;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +8,7 @@ import java.util.List;
  * Blog : http://jojoldu.tistory.com
  * Github : http://github.com/jojoldu
  */
-public class CardDeck {
+public class CardDeck{
     private List<Card> cards;
 
     private static final String[] PATTERNS = {"spade", "heart", "diamond", "club"};

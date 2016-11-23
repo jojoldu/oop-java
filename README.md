@@ -1,12 +1,13 @@
 # 순수 Java로 이루어진 프로젝트
-객체지향을 이해하는데 있어 웹은 좋은 예제가 아니라는 자바지기(박재성)님의 이야기에 시작한 프로젝트 <br/>
+> 객체지향을 이해하는데 있어 게시판은 좋은 예제가 아니라는 자바지기(박재성)님과 OKKY fender님의 이야기로 시작한 프로젝트
+
 Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한적이 없던것 같다는 생각이 있었습니다. <br/>
 
 ![기본은해봤어요!](./images/기본.png)
 
 그래서 데이터베이스, JSP를 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다. <br/>
-Gradle을 연동하였습니다. Apache Commons Util과 같은 순수 Java 라이브러리 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단하기도 했으며, <br/>
-목적은 어디까지나 웹이 아닌 환경에서 객제치향 코딩이기 때문입니다. <br/>
+추가로 Gradle을 연동하였습니다. <br/>
+Apache Commons Util과 같은 순수 Java 라이브러리 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단하기도 했으며, 목적은 어디까지나 웹이 아닌 환경에서 객제치향 코딩이기 때문입니다. <br/>
 각자의 취향에 따라 Gradle -> Maven 으로 변경해도 무방할 것 같습니다. <br/>
 모든 코드는 [Github](https://github.com/jojoldu/oop-java)에 있으니 전체 코드를 보고싶으시면 참고하시면 될것 같습니다. <br/>
 (공부한 내용을 정리하는 [Github](https://github.com/jojoldu/blog-code)와 세미나&책 후기를 정리하는 [Github](https://github.com/jojoldu/review) 를 star 하시면 실시간으로 feed를 받을 수 있습니다.)
@@ -775,6 +776,177 @@ CardDeck의 numberToDenomination와 numberToPoint를 Card 클래스로 이동하
 ```
 
 Card 객체로 역할을 분리했기 때문에 CardDeck은 반복문으로 Card 인스턴스를 생성만 하면 되도록 코드가 간결해졌습니다. <br/>
+Dealer 코드 작성의 밑거름은 모두 작성되었으니, 본격적으로 Dealer의 코드를 구현해보겠습니다. <br/>
+
+**Dealer.java**
+```
+public class Dealer {
+    private List<Card> cards;
+
+    private static final int CAN_RECEIVE_POINT = 16;
+
+    public Dealer() {
+        cards = new ArrayList<>();
+    }
+
+    public void receiveCard(Card card) {
+        if(this.isReceiveCard()){
+            this.cards.add(card);
+        }else{
+            System.out.println("카드의 총 합이 17이상입니다. 더이상 카드를 받을 수 없습니다.");
+        }
+    }
+
+    private boolean isReceiveCard(){
+        return getPointSum() <= CAN_RECEIVE_POINT;
+    }
+
+    private int getPointSum(){
+        int sum = 0;
+        for(Card card : cards) {
+            sum += card.getPoint();
+        }
+
+        return sum;
+    }
+
+    public void showCards(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("현재 보유 카드 목록 \n");
+
+        for(Card card : cards){
+            sb.append(card.toString());
+            sb.append("\n");
+        }
+
+        System.out.println(sb.toString());
+    }
+
+    public List<Card> openCards(){
+        return this.cards;
+    }
+}
+```
+Dealer의 가장 큰 특징인 receiveCard 메소드를 구현하기 위해 isReceiveCard메소드와 getPointSum메소드를 추가하였습니다. <br/>
+여기서 특이하다고 느끼실 만한 것은 isReceiveCard 메소드 일것 같습니다. <br/>
+단순히 한줄의 코드, boolean의 리턴값밖에 없는데도 메소드를 만들어야 하나? 라는 의문이 있으실것 같습니다. <br/>
+결론은 **만드는 것이 낫다**입니다. 매직넘버와 비슷한 케이스로 보시면 됩니다. <br/>
+```if(getPointSum() <= CAN_RECEIVE_POINT)``` 이라고 하면 이 조건문이 정확히 **어떤 일을 하는지는 추측**할 수 밖에 없습니다. <br/>
+하지만 ```if(this.isReceiveCard())``` 로 하게 되면 **아! 카드를 받을 수 있는 조건은 총 포인트의 합이 16이하인 경우이고 이때는 카드를 받을 수 있구나 라고 확신**할 수 있습니다. <br/>
+이게 중요합니다. <br/>
+결국은 누가 봐도 이 코드가 무엇을 하는지 명확히 표현하는 것이 중요합니다. <br/>
+**그 일은 주석이 하는 것이 아닙니다.** 의도가 명확한 코드와 변수명, 메소드명이 해야하는 것입니다. <br/>
+<br/>
+Dealer의 구현이 끝났으니, Dealer가 필요한 Game 클래스를 수정해보겠습니다. <br/>
+```
+    private void playingPhase(Scanner sc, CardDeck cardDeck, Gamer gamer, Dealer dealer) {
+        String gamerInput, dealerInput;
+        boolean isGamerTurn = false,
+                isDealerTurn = false;
+
+        while(true){
+            System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
+            gamerInput = sc.nextLine();
+
+            if("0".equals(gamerInput)) {
+                isGamerTurn = true;
+            }else{
+                Card card = cardDeck.draw();
+                gamer.receiveCard(card);
+                gamer.showCards();
+            }
+
+            System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
+            dealerInput = sc.nextLine();
+
+            if("0".equals(dealerInput)) {
+                isDealerTurn = true;
+            }else{
+                Card card = cardDeck.draw();
+                dealer.receiveCard(card);
+                dealer.showCards();
+            }
+
+            if(isGamerTurn && isDealerTurn){
+                break;
+            }
+
+        }
+    }
+
+    private void initPhase(CardDeck cardDeck, Gamer gamer, Dealer dealer){
+        System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
+        for(int i = 0; i< INIT_RECEIVE_CARD_COUNT; i++) {
+            Card card = cardDeck.draw();
+            gamer.receiveCard(card);
+
+            Card card2 = cardDeck.draw();
+            dealer.receiveCard(card2);
+        }
+    }
+```
+코드를 보시면 불편해 보이는 코드가 대거 보이실것 같습니다. <br/>
+2개의 메소드 모두 **dealer와 gamer만 다르지 같은 일을 하는 코드**가 대부분입니다. <br/>
+반대로 생각해보면 dealer와 gamer만 하나로 볼 수 있으면 코드 중복을 제거할 수 있지 않을까요?? <br/>
+Gamer와 Dealer는 여러 조건들에 의해 서로 다른 구현 코드를 가지고 있습니다. <br/>
+하지만 **카드를 받아야하고, 가진 카드를 보여줘야 한다는 공통점**을 가지고 있습니다. <br/>
+우린 이 공통점을 묶어 Player라는 객체를 생성하여 Gamer와 Dealer를 Player에 속하도록 수정하겠습니다. <br/>
+(참고로, 이렇게 서로 다른 객체들의 차이점을 배제하고, 공통점만을 취해 단순화 하는 것을 **추상화** 라고 합니다. <br/>
+객체지향을 좀 더 단순하게 바라보기 위해서는 이렇게 추상화를 어떻게 하느냐에 따라 달라집니다.)<br/>
+
+**Player.java**
+```
+public interface Player {
+    void receiveCard(Card card);
+
+    void showCards();
+
+    List<Card> openCards();
+}
+```
+Player 인터페이스는 단순합니다. Gamer와 Dealer의 공통점인 receiveCard, showCards, openCards를 추상메소드로 갖고 있습니다. <br/>
+(참고로 **인터페이스는 상수와 추상메소드만 가질 수 있습니다.** <br/>
+반대로 추상 클래스는 상수,변수,일반메소드,추상메소드 모두를 가질 수 있습니다.) <br/>
+그리고 Player 인터페이스를 **구현(Implements)** 하도록 Gamer클래스와 Dealer클래스 코드를 수정하겠습니다.
+
+```
+public class Gamer implements Player {
+    ...
+    
+    @Override
+    public void receiveCard(Card card) { ... }
+
+    @Override
+    public void showCards(){ ... }
+
+    @Override
+    public List<Card> openCards(){ ... }
+}
+
+public class Dealer implements Player {
+    ...
+
+    @Override
+    public void receiveCard(Card card) { ... }
+
+    @Override
+    public void showCards() { ... }
+
+    @Override
+    public List<Card> openCards() { ... }
+}
+```
+이렇게 Gamer와 Dealer를 Player의 구현체로 보게 되면 이전의 중복된 코드를 하나의 코드로 해결할 수 있게 됩니다.<br/>
+
+한가지 주의하셔야 할 점은, **추상 클래스와 상속은 최대한 피하는 것이 좋습니다.** [참고](http://kwon37xi.egloos.com/4634829) <br/>
+프로젝트 초기에는 못느끼지만, 프로젝트가 점점 커지고 운영기간이 3년, 4년 지나면서 상속과 추상 클래스로 범벅이 된 코드는 부모 클래스를 도저히 수정할 수 없는 지경에 이르게 됩니다. <br/>
+현재는 Dealer와 Gamer의 showCards 메소드와 openCards 메소드가 동일하지만, 시간이 지나서도 2개의 메소드 코드는 동일할 수 있을까요? <br/>
+receiveCard 메소드처럼 **똑같이 카드를 받는 역할이지만 구현은 다른 경우**가 과연 없을까요? <br/>
+서로 다른 객체는 최대한 느슨한 관계를 가지는 것이 좋습니다. <br/>
+한쪽의 객체가 변경된다고해서 다른 객체가 변경되야하는 것은 피하는 것이 좋습니다. <br/>
+
+
 ### 참고 자료
+* [자바지기 박재성님의 강의](https://github.com/jojoldu/fastcampus-java)
 * [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
 * [OKKY fender님의 칼럼](http://okky.kr/article/358197)
