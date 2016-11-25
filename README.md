@@ -870,7 +870,6 @@ Dealer의 구현이 끝났으니, Dealer가 필요한 Game 클래스를 수정�
             if(isGamerTurn && isDealerTurn){
                 break;
             }
-
         }
     }
 
@@ -965,7 +964,60 @@ public class Dealer implements Player {
     }
 ```
 
+이전보다 훨씬 줄어든 코드양을 확인할 수 있습니다. <br/>
+(기회가 되면 현재 코드를 전부 람다와 스트림으로 변경해보는 것도 좋을것 같습니다. <br/>
+현재는 Java8을 접하지 않는 분들이 더 많으실꺼라는 생각에 모던 Java 문법은 배제하였습니다.<br/>
+사실 저희팀 개발 스펙이 아직까진 Java7인것도 이유중 하나 입니다^^;) <br/>
 
+이제 playingPhase 메소드를 수정해보겠습니다. <br/>
+
+```
+    private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        while(true){
+            boolean isAllPlayerTurnOff = receiveCardAllPlayers(sc, cardDeck, players);
+
+            if(isAllPlayerTurnOff){
+                break;
+            }
+        }
+    }
+
+    private boolean receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        boolean isAllPlayerTurnOff = true;
+
+        for(Player player : players) {
+
+            if(isReceiveCard(sc)) {
+                isAllPlayerTurnOff = true;
+            }else{
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+                player.showCards();
+                isAllPlayerTurnOff = false;
+            }
+        }
+
+        return isAllPlayerTurnOff;
+    }
+
+    private boolean isReceiveCard(Scanner sc) {
+        System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
+        return STOP_RECEIVE_CARD.equals(sc.nextLine());
+    }
+```
+playingPhase는 여러단계를 거쳐 리팩토링 해야할것 같습니다.<br/>
+위 코드는 이전의 중복된 코드를 가진 1개의 메소드를 3개의 메소드로 분리한 형태입니다. <br/>
+모든 Player가 Card를 뽑도록 하는 receiveCardAllPlayers 메소드, <br/>
+receiveCardAllPlayers 결과에 따라 receiveCardAllPlayers를 반복시키는 playingPhase 메소드, <br/>
+Player 개개인에게 카드를 뽑을건지 의사를 묻는 isReceiveCard 메소드입니다. <br/>
+<br/>
+여기서 다른 메소드에 비해 receiveCardAllPlayers가 많이 이상해보입니다. <br/>
+receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적과 리턴되는 결과가 일치하지 않습니다.** <br/>
+
+* 비지니스 로직이 들어간 메소드는 리턴값이 있는 것을 권장합니다.
+  - 유닛 테스트 진행이 수월하게 됩니다. 
+  - 해당 메소드에 어떤 값을 주면 어떤값이 전달
+ 
 
 
 
