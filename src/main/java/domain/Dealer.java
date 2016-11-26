@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class Dealer implements Player {
     private List<Card> cards;
+    private boolean turnOff;
 
     private static final int CAN_RECEIVE_POINT = 16;
 
@@ -55,5 +56,15 @@ public class Dealer implements Player {
     @Override
     public List<Card> openCards(){
         return this.cards;
+    }
+
+    @Override
+    public void setTurnOff(boolean turnOff) {
+        this.turnOff = turnOff;
+    }
+
+    @Override
+    public boolean isTurnOff() {
+        return this.turnOff;
     }
 }

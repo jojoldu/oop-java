@@ -25,8 +25,10 @@ public class Game {
     }
 
     private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        List<Player>
         while(true){
-            boolean isAllPlayerTurnOff = receiveCardAllPlayers(sc, cardDeck, players);
+            receiveCardAllPlayers(sc, cardDeck, players);
+            boolean isAllPlayerTurnOff = isAllPlayerTurnOff(players);
 
             if(isAllPlayerTurnOff){
                 break;
@@ -34,22 +36,31 @@ public class Game {
         }
     }
 
-    private boolean receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
-        boolean isAllPlayerTurnOff = true;
+    private List<Player> receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
 
         for(Player player : players) {
 
             if(isReceiveCard(sc)) {
-                isAllPlayerTurnOff = true;
+                player.setTurnOff(false);
             }else{
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
                 player.showCards();
-                isAllPlayerTurnOff = false;
+                player.setTurnOff(true);
             }
         }
 
-        return isAllPlayerTurnOff;
+        return players;
+    }
+
+    private boolean isAllPlayerTurnOff (List<Player> players){
+        boolean allPlayerTurnOff = true;
+
+        for(Player player : players) {
+            allPlayerTurnOff = player.isTurnOff();
+        }
+
+        return allPlayerTurnOff;
     }
 
     private boolean isReceiveCard(Scanner sc) {

@@ -1005,18 +1005,20 @@ public class Dealer implements Player {
         return STOP_RECEIVE_CARD.equals(sc.nextLine());
     }
 ```
-playingPhase는 여러단계를 거쳐 리팩토링 해야할것 같습니다.<br/>
-위 코드는 이전의 중복된 코드를 가진 1개의 메소드를 3개의 메소드로 분리한 형태입니다. <br/>
+기존의 코드에서 playingPhase의 역할을 추가된 2개의 메소드에 나눠주었습니다. <br/>
 모든 Player가 Card를 뽑도록 하는 receiveCardAllPlayers 메소드, <br/>
 receiveCardAllPlayers 결과에 따라 receiveCardAllPlayers를 반복시키는 playingPhase 메소드, <br/>
 Player 개개인에게 카드를 뽑을건지 의사를 묻는 isReceiveCard 메소드입니다. <br/>
 <br/>
 여기서 다른 메소드에 비해 receiveCardAllPlayers가 많이 이상해보입니다. <br/>
-receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적과 리턴되는 결과가 일치하지 않습니다.** <br/>
+receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적과 기능이 일치하지 않습니다.** <br/>
+**모든 Player가 카드를 받는 역할과 모든 Player가 카드를 받았다는 신호를 보내는 것** 이 2가지를 하고 있습니다. <br/>
+하나의 메소드는 하나의 역할만 하는 원칙에 따라 이를 분리하도록 하겠습니다. <br/>
 
-* 비지니스 로직이 들어간 메소드는 리턴값이 있는 것을 권장합니다.
+
+* 비지니스 로직이 들어간 메소드는 리턴값과 목적이 일치하는 것이 좋습니다.
   - 유닛 테스트 진행이 수월하게 됩니다. 
-  - 해당 메소드에 어떤 값을 주면 어떤값이 전달
+  - 해당 메소드에 특정 값을 전달하면 특정
  
 
 
