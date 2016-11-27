@@ -986,14 +986,13 @@ public class Dealer implements Player {
         boolean isAllPlayerTurnOff = true;
 
         for(Player player : players) {
-
             if(isReceiveCard(sc)) {
-                isAllPlayerTurnOff = true;
-            }else{
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
                 player.showCards();
-                isAllPlayerTurnOff = false;
+                isAllPlayerTurnOff = false;            
+            }else{
+                isAllPlayerTurnOff = true;
             }
         }
 
@@ -1002,16 +1001,19 @@ public class Dealer implements Player {
 
     private boolean isReceiveCard(Scanner sc) {
         System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
-        return STOP_RECEIVE_CARD.equals(sc.nextLine());
+        return !STOP_RECEIVE_CARD.equals(sc.nextLine());
     }
 ```
-기존의 코드에서 playingPhase의 역할을 추가된 2개의 메소드에 나눠주었습니다. <br/>
-모든 Player가 Card를 뽑도록 하는 receiveCardAllPlayers 메소드, <br/>
-receiveCardAllPlayers 결과에 따라 receiveCardAllPlayers를 반복시키는 playingPhase 메소드, <br/>
-Player 개개인에게 카드를 뽑을건지 의사를 묻는 isReceiveCard 메소드입니다. <br/>
+
+기존의 코드에서 playingPhase의 역할을 추가된 2개의 메소드에 나눠주었고, 그 역할은 아래와 같습니다.<br/>
+
+* receiveCardAllPlayers : 모든 Player가 Card를 뽑도록 하는 역할
+* playingPhase : receiveCardAllPlayers 결과에 따라 receiveCardAllPlayers를 반복시키는 역할
+* isReceiveCard : Player 개개인에게 카드를 뽑을건지 의사를 묻는 역할
+
 <br/>
 여기서 다른 메소드에 비해 receiveCardAllPlayers가 많이 이상해보입니다. <br/>
-receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적과 기능이 일치하지 않습니다.** <br/>
+receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적과 기능이 일치하지 않습니다**. <br/>
 **모든 Player가 카드를 받는 역할과 모든 Player가 카드를 받았다는 신호를 보내는 것** 이 2가지를 하고 있습니다. <br/>
 하나의 메소드는 하나의 역할만 하는 원칙에 따라 이를 분리하도록 하겠습니다. <br/>
 
@@ -1022,6 +1024,10 @@ receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 �
  
 
 
+### 후기
+> 코딩하는 시간보다 생각하는 시간이 더 많았습니다. <br/>
+하루 4시간은 꼭 코딩해야지 라는 규칙을 가지고 있었는데, 이렇게 짜면 되나? 아 이건 좀 별로네? 등의 생각과 함께 
+모니터를 보는 시간이 더 많아지고 진도는 나가지 않아서 다른 포스팅보다 훨씬 더 어려웠던 시간이였던 것 같습니다.
 
 ### 참고 자료
 * [자바지기 박재성님의 강의](https://github.com/jojoldu/fastcampus-java)

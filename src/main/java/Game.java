@@ -25,12 +25,11 @@ public class Game {
     }
 
     private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
-        List<Player>
+        List<Player> cardReceivedPlayers;
         while(true){
-            receiveCardAllPlayers(sc, cardDeck, players);
-            boolean isAllPlayerTurnOff = isAllPlayerTurnOff(players);
+            cardReceivedPlayers = receiveCardAllPlayers(sc, cardDeck, players);
 
-            if(isAllPlayerTurnOff){
+            if(isAllPlayerTurnOff(cardReceivedPlayers)){
                 break;
             }
         }
@@ -41,19 +40,19 @@ public class Game {
         for(Player player : players) {
 
             if(isReceiveCard(sc)) {
-                player.setTurnOff(false);
-            }else{
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
                 player.showCards();
                 player.setTurnOff(true);
+            }else{
+                player.setTurnOff(false);
             }
         }
 
         return players;
     }
 
-    private boolean isAllPlayerTurnOff (List<Player> players){
+    private boolean isAllPlayerTurnOff(List<Player> players){
         boolean allPlayerTurnOff = true;
 
         for(Player player : players) {
@@ -65,7 +64,7 @@ public class Game {
 
     private boolean isReceiveCard(Scanner sc) {
         System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
-        return STOP_RECEIVE_CARD.equals(sc.nextLine());
+        return !STOP_RECEIVE_CARD.equals(sc.nextLine());
     }
 
     private void initPhase(CardDeck cardDeck, List<Player> players){
