@@ -20,12 +20,15 @@ public class Game {
         Rule rule = new Rule();
         CardDeck cardDeck = new CardDeck();
 
-        List<Player> players = Arrays.asList(new Gamer(), new Dealer());
-        initPhase(cardDeck, players);
-        playingPhase(sc, cardDeck, players);
+        List<Player> players = Arrays.asList(new Gamer("사용자1"), new Dealer());
+        List<Player> initAfterPlayers = initPhase(cardDeck, players);
+        List<Player> playingAfterPlayers = playingPhase(sc, cardDeck, initAfterPlayers);
+
+        Player winner = rule.getWinner(playingAfterPlayers);
+        System.out.println("승자는 " + winner.getName());
     }
 
-    private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
+    private List<Player> playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
         List<Player> cardReceivedPlayers;
         while(true){
             cardReceivedPlayers = receiveCardAllPlayers(sc, cardDeck, players);
@@ -34,10 +37,12 @@ public class Game {
                 break;
             }
         }
+        return cardReceivedPlayers;
     }
 
     private List<Player> receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
         for(Player player : players) {
+            System.out.println(player.getName()+"님 차례입니다.");
             if(isReceiveCard(sc)) {
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
@@ -51,13 +56,13 @@ public class Game {
     }
 
     private boolean isAllPlayerTurnOff(List<Player> players){
-        boolean allPlayerTurnOff = true;
-
         for(Player player : players) {
-            allPlayerTurnOff = player.isTurn();
+            if(player.isTurn()) {
+                return false;
+            }
         }
 
-        return allPlayerTurnOff;
+        return true;
     }
 
     private boolean isReceiveCard(Scanner sc) {
@@ -65,13 +70,16 @@ public class Game {
         return !STOP_RECEIVE_CARD.equals(sc.nextLine());
     }
 
-    private void initPhase(CardDeck cardDeck, List<Player> players){
+    private List<Player> initPhase(CardDeck cardDeck, List<Player> players){
         System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
         for(int i = 0; i < INIT_RECEIVE_CARD_COUNT; i++) {
             for(Player player : players) {
+                System.out.println(player.getName()+"님 차례입니다.");
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
             }
         }
+
+        return players;
     }
 }

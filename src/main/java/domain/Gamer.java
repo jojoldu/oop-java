@@ -11,9 +11,11 @@ import java.util.List;
 public class Gamer implements Player {
     private List<Card> cards;
     private boolean turn;
+    private String name;
 
-    public Gamer() {
-        cards = new ArrayList<>();
+    public Gamer(String name) {
+        this.cards = new ArrayList<>();
+        this.name = name;
     }
 
     @Override
@@ -57,5 +59,10 @@ public class Gamer implements Player {
 
     private void setTurn(boolean turn) {
         this.turn = turn;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 }

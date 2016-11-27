@@ -6,9 +6,6 @@ Java로 웹을 한다고 하면서 실제로 Java와 객체지향을 공부한�
 ![기본은해봤어요!](./images/기본.png)
 
 그래서 데이터베이스, JSP를 전혀 사용하지 않고 Java와 객체에 좀 더 집중할 예정입니다. <br/>
-추가로 Gradle을 연동하였습니다. <br/>
-Apache Commons Util과 같은 순수 Java 라이브러리 같은 경우는 프로젝트 목적에 크게 위배되지 않는다고 판단하기도 했으며, 목적은 어디까지나 웹이 아닌 환경에서 객제치향 코딩이기 때문입니다. <br/>
-각자의 취향에 따라 Gradle -> Maven 으로 변경해도 무방할 것 같습니다. <br/>
 모든 코드는 [Github](https://github.com/jojoldu/oop-java)에 있으니 전체 코드를 보고싶으시면 참고하시면 될것 같습니다. <br/>
 (공부한 내용을 정리하는 [Github](https://github.com/jojoldu/blog-code)와 세미나&책 후기를 정리하는 [Github](https://github.com/jojoldu/review) 를 star 하시면 실시간으로 feed를 받을 수 있습니다.)
 
@@ -278,7 +275,7 @@ draw는 **남아 있는 카드 중 랜덤한 1개의 카드를 준다** 라는 C
 
 numberToDenomination 메소드를 작성하게 되면 한가지 더 마음에 안드는 것이 보일것입니다. <br/>
 바로 52개의 Card List를 생성하는 코드입니다. <br/>
-이 코드 역시 생성자의 역할은 아닙니다. 생성자가 실행을 시킬 역할이 있을 뿐이지 실제 비지니스 로직을 알고 있어야 할 필요는 없습니다. <br/>
+이 코드 역시 생성자의 역할은 아닙니다. 생성자가 **실행을 시킬 역할이 있을 뿐이지 실제 비지니스 로직을 알고 있어야 할 필요는 없습니다.** <br/>
 그렇기에 이 역시 코드를 분리하도록 하겠습니다.
 
 ```
@@ -1023,7 +1020,21 @@ receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 �
 
 **Game.java**
 ```
-    private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
+    public void play(){
+        System.out.println("========= Blackjack =========");
+        Scanner sc = new Scanner(System.in);
+        Rule rule = new Rule();
+        CardDeck cardDeck = new CardDeck();
+
+        List<Player> players = Arrays.asList(new Gamer("사용자1"), new Dealer());
+        List<Player> initAfterPlayers = initPhase(cardDeck, players);
+        List<Player> playingAfterPlayers = playingPhase(sc, cardDeck, initAfterPlayers);
+
+        Player winner = rule.getWinner(playingAfterPlayers);
+        System.out.println("승자는 " + winner.getName());
+    }
+
+    private List<Player> playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
         List<Player> cardReceivedPlayers;
         while(true){
             cardReceivedPlayers = receiveCardAllPlayers(sc, cardDeck, players);
@@ -1032,6 +1043,7 @@ receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 �
                 break;
             }
         }
+        return cardReceivedPlayers;
     }
 
     private List<Player> receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
@@ -1049,13 +1061,30 @@ receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 �
     }
 
     private boolean isAllPlayerTurnOff(List<Player> players){
-        boolean allPlayerTurnOff = true;
-
         for(Player player : players) {
-            allPlayerTurnOff = player.isTurn();
+            if(player.isTurn()) {
+                return false;
+            }
         }
 
-        return allPlayerTurnOff;
+        return true;
+    }
+
+    private boolean isReceiveCard(Scanner sc) {
+        System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
+        return !STOP_RECEIVE_CARD.equals(sc.nextLine());
+    }
+
+    private List<Player> initPhase(CardDeck cardDeck, List<Player> players){
+        System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
+        for(int i = 0; i < INIT_RECEIVE_CARD_COUNT; i++) {
+            for(Player player : players) {
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+            }
+        }
+
+        return players;
     }
 ```
 
@@ -1149,13 +1178,145 @@ Dealer와 Gamer의 대결까지도 구현이 되었습니다. <br/>
 자 그럼 마지막으로 게임의 결과를 나타내주는 Rule 객체를 구현해보겠습니다. <br/>
 
 ### 2-4. Rule 구현하기
+Rule은 승자를 판단하는 역할을 갖고 있습니다. <br/>
+그래서 게임에 참여한 Player들의 카드를 비교해 승자를 구하는 코드를 구현해보겠습니다. <br/>
 
+```
+    public Player getWinner(List<Player> players){
+        Player highestPlayer = null;
+        int highestPoint = 0;
 
+        for(Player player : players) {
+            int playerPointSum = getPointSum(player.openCards());
+            if(playerPointSum > highestPoint){
+                highestPlayer = player;
+                highestPoint = playerPointSum;
+            }
+        }
+
+        return highestPlayer;
+    }
+
+    private int getPointSum (List<Card> cards) {
+        int sum = 0;
+
+        for(Card card : cards) {
+            sum += card.getPoint();
+        }
+
+        return sum;
+    }
+```
+
+여기서는 getWinner가 point의 합계를 구하는 역할까지 하는 것을 방지하기 위해 getPointSum 메소드를 통해 역할을 분리하였습니다. <br/>
+현재 코드에선 부족한 것이 하나 있습니다. <br/>
+승리한 Player를 전달해주지만, 콘솔에 어느 Player가 승리하였는지 표시할 수 있는 방법이 없습니다. <br/>
+그래서 이를 위해 Player / Gamer / Dealer에 getName이라는 메소드를 추가하도록 하겠습니다. <br/>
+
+```
+public interface Player {
+    .....
+    
+    String getName();
+}
+
+public class Gamer implements Player {
+    private List<Card> cards;
+    private boolean turn;
+    private String name;
+
+    public Gamer(String name) {
+        this.cards = new ArrayList<>();
+        this.name = name;
+    }
+
+    ....
+    
+    @Override
+    public String getName() {
+        return this.name;
+    }
+}
+
+public class Dealer implements Player {
+    private List<Card> cards;
+    private boolean turn;
+
+    private static final int CAN_RECEIVE_POINT = 16;
+    private static final String NAME = "딜러";
+
+    ..... 
+    
+    @Override
+    public String getName() {
+        return NAME;
+    }
+}
+```
+
+이 부분의 특이한 점은 Gamer의 getName과 Dealer의 getName이 서로 방식으로 리턴한다는 것입니다. <br/>
+Gamer의 경우 생성자로 전달 받은 name값을 전달하지만, <br/>
+Dealer의 경우 상수로 지정된 "딜러" 를 전달합니다. <br/>
+이는 Dealer의 경우엔 한 게임에 딜러 1명 외에는 존재할 수 없지만, Gamer의 경우엔 여러 Gamer가 참여할 수 있기 때문에 name이 변경 가능해야하기 때문입니다. <br/>
+Scanner로 Gamer의 name을 입력 받을 수 있지만 여기선 생성자에 바로 입력해서 play 메소드를 완성시키겠습니다. <br/>
+
+**Game.java**
+```
+    public void play(){
+        System.out.println("========= Blackjack =========");
+        Scanner sc = new Scanner(System.in);
+        Rule rule = new Rule();
+        CardDeck cardDeck = new CardDeck();
+
+        List<Player> players = Arrays.asList(new Gamer("사용자1"), new Dealer());
+        List<Player> initAfterPlayers = initPhase(cardDeck, players);
+        List<Player> playingAfterPlayers = playingPhase(sc, cardDeck, initAfterPlayers);
+
+        Player winner = rule.getWinner(playingAfterPlayers);
+        System.out.println("승자는 " + winner.getName());
+    }
+    
+    .....
+    
+    private List<Player> receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        for(Player player : players) {
+            System.out.println(player.getName()+"님 차례입니다.");
+            
+            if(isReceiveCard(sc)) {
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+                player.turnOn();
+            }else{
+                player.turnOff();
+            }
+        }
+
+        return players;
+    }     
+```
+추가로 현재 차례가 누군지 확인하기 위해 receiveCardAllPlayers에도 getName을 활용한 안내메세지를 추가하였습니다. <br/>
+이렇게 완성후 게임을 진행해보면!! <br/>
+
+![게임결과](./images/게임결과.png)
+
+(게임 결과!) <br/><br/>
+원하는 대로 콘솔에서 게임을 진행이 되는 것을 확인할 수 있습니다. <br/>
+드디어 게임이 완성되었습니다. <br/>
+현재 버전이 100% 라고 할수는 없습니다. <br/>
+아직도 많은 리팩토링이 필요하고, 부족함이 많은 예제라 생각합니다. <br/>
+다만 현재 버전은 여기서 마무리 하겠습니다^^; <br/>
+만약 예제를 좀 더 사용하고자 하신다면 꼭꼭! Java8의 **람다와 스트림으로 코드를 변경**해보시는 것을 추천드립니다. <br/>
 
 ### 후기
 > 코딩하는 시간보다 생각하는 시간이 더 많았습니다. <br/>
 하루 4시간은 꼭 코딩해야지 라는 규칙을 가지고 있었는데, 이렇게 짜면 되나? 아 이건 좀 별로네? 등의 생각과 함께 
-모니터를 보는 시간이 더 많아지고 진도는 나가지 않아서 다른 포스팅보다 훨씬 더 어려웠던 시간이였던 것 같습니다.
+모니터를 보는 시간이 더 많아지고 진도는 나가지 않아서 다른 포스팅보다 훨씬 더 어려웠던 시간이였던 것 같습니다. <br/>
+제일 걱정했던 것은 제가 작성했던 모든 코드가 틀린 것은 아닐까 하는것 이였습니다. <br/>
+그런 걱정이 드니 오히려 더 해봐야겠다는 생각이 들었습니다. <br/>
+전부 잘못되었다면 혹은 일부 잘못된게 있는데 고치지 못하면 그게 더 나쁜 습관으로 남을 것 같았습니다. <br/>
+아무쪼록 부족한 내용이지만 여기까지 읽어주셔서 정말 감사드립니다. <br/>
+다음에 더 좋은 내용으로 또 뵙겠습니다.
+
 
 ### 참고 자료
 * [자바지기 박재성님의 강의](https://github.com/jojoldu/fastcampus-java)
