@@ -1,4 +1,5 @@
 import domain.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,16 +37,13 @@ public class Game {
     }
 
     private List<Player> receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
-
         for(Player player : players) {
-
             if(isReceiveCard(sc)) {
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
-                player.showCards();
-                player.setTurnOff(true);
+                player.turnOn();
             }else{
-                player.setTurnOff(false);
+                player.turnOff();
             }
         }
 
@@ -56,7 +54,7 @@ public class Game {
         boolean allPlayerTurnOff = true;
 
         for(Player player : players) {
-            allPlayerTurnOff = player.isTurnOff();
+            allPlayerTurnOff = player.isTurn();
         }
 
         return allPlayerTurnOff;
@@ -69,7 +67,7 @@ public class Game {
 
     private void initPhase(CardDeck cardDeck, List<Player> players){
         System.out.println("처음 2장의 카드를 각자 뽑겠습니다.");
-        for(int i = 0; i< INIT_RECEIVE_CARD_COUNT; i++) {
+        for(int i = 0; i < INIT_RECEIVE_CARD_COUNT; i++) {
             for(Player player : players) {
                 Card card = cardDeck.draw();
                 player.receiveCard(card);

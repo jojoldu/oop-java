@@ -527,6 +527,11 @@ Gamer의 경우 사용자가 현재 카드들의 총 Point를 보며 카드를 �
 **showCards는 Gamer의 역할** 입니다. Gamer가 소유한 카드들의 목록을 보여주는 것이기 때문입니다. <br/>
 
 ```
+    public void receiveCard(Card card) {
+        this.cards.add(card);
+        this.showCards();
+    }
+    
     public void showCards(){
         StringBuilder sb = new StringBuilder();
         sb.append("현재 보유 카드 목록 \n");
@@ -540,6 +545,7 @@ Gamer의 경우 사용자가 현재 카드들의 총 Point를 보며 카드를 �
     }
 ```
 
+카드를 받을때마다 현재 소유한 카드를 확인해야 하는 것이 필수이니, receiveCard의 마지막 코드로 showCards 메소드가 추가되었습니다. <br/>
 매번 System.out을 하는 것은 성능상 좋지 않기 때문에 StringBuilder로 출력결과를 모두 작성후 **최종 1번만 System.out** 할 수 있도록 하였습니다.
 (여담으로 알고리즘 문제 사이트에서 결과를 출력하실 경우에도 이렇게 하시는게 결과시간 단축에 도움이 됩니다.) <br/>
 
@@ -577,7 +583,6 @@ Gamer의 경우 사용자가 현재 카드들의 총 Point를 보며 카드를 �
 
             Card card = cardDeck.draw();
             gamer.receiveCard(card);
-            gamer.showCards();
         }
     }
 ```
@@ -792,6 +797,7 @@ public class Dealer {
     public void receiveCard(Card card) {
         if(this.isReceiveCard()){
             this.cards.add(card);
+            this.showCards();
         }else{
             System.out.println("카드의 총 합이 17이상입니다. 더이상 카드를 받을 수 없습니다.");
         }
@@ -853,7 +859,6 @@ Dealer의 구현이 끝났으니, Dealer가 필요한 Game 클래스를 수정�
             }else{
                 Card card = cardDeck.draw();
                 gamer.receiveCard(card);
-                gamer.showCards();
             }
 
             System.out.println("카드를 뽑겠습니까? 종료를 원하시면 0을 입력하세요.");
@@ -864,7 +869,6 @@ Dealer의 구현이 끝났으니, Dealer가 필요한 Game 클래스를 수정�
             }else{
                 Card card = cardDeck.draw();
                 dealer.receiveCard(card);
-                dealer.showCards();
             }
 
             if(isGamerTurn && isDealerTurn){
@@ -989,7 +993,6 @@ public class Dealer implements Player {
             if(isReceiveCard(sc)) {
                 Card card = cardDeck.draw();
                 player.receiveCard(card);
-                player.showCards();
                 isAllPlayerTurnOff = false;            
             }else{
                 isAllPlayerTurnOff = true;
@@ -1012,16 +1015,141 @@ public class Dealer implements Player {
 * isReceiveCard : Player 개개인에게 카드를 뽑을건지 의사를 묻는 역할
 
 <br/>
-여기서 다른 메소드에 비해 receiveCardAllPlayers가 많이 이상해보입니다. <br/>
-receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적과 기능이 일치하지 않습니다**. <br/>
+여기서 다른 메소드에 비해 receiveCardAllPlayers가 이상해보입니다. <br/>
+receiveCardAllPlayers 메소드는 모든 Player가 카드를 받도록 하는 메소드인데 그 **목적보다 많은 일을 하고 있습니다.** <br/>
 **모든 Player가 카드를 받는 역할과 모든 Player가 카드를 받았다는 신호를 보내는 것** 이 2가지를 하고 있습니다. <br/>
 하나의 메소드는 하나의 역할만 하는 원칙에 따라 이를 분리하도록 하겠습니다. <br/>
+<br/>
 
+**Game.java**
+```
+    private void playingPhase(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        List<Player> cardReceivedPlayers;
+        while(true){
+            cardReceivedPlayers = receiveCardAllPlayers(sc, cardDeck, players);
 
-* 비지니스 로직이 들어간 메소드는 리턴값과 목적이 일치하는 것이 좋습니다.
-  - 유닛 테스트 진행이 수월하게 됩니다. 
-  - 해당 메소드에 특정 값을 전달하면 특정
+            if(isAllPlayerTurnOff(cardReceivedPlayers)){
+                break;
+            }
+        }
+    }
+
+    private List<Player> receiveCardAllPlayers(Scanner sc, CardDeck cardDeck, List<Player> players) {
+        for(Player player : players) {
+            if(isReceiveCard(sc)) {
+                Card card = cardDeck.draw();
+                player.receiveCard(card);
+                player.turnOn();
+            }else{
+                player.turnOff();
+            }
+        }
+
+        return players;
+    }
+
+    private boolean isAllPlayerTurnOff(List<Player> players){
+        boolean allPlayerTurnOff = true;
+
+        for(Player player : players) {
+            allPlayerTurnOff = player.isTurn();
+        }
+
+        return allPlayerTurnOff;
+    }
+```
+
+receiveCardAllPlayers 메소드에서 모든 게임 참가자가 카드뽑기종료 상태인지를 확인하는 역할을 새로운 메소드인 isAllPlayerTurnOff에 맡겼습니다. <br/>
+여기서 주의하셔야 할것은 receiveCardAllPlayers의 **리턴타입이 void가 아닌 List<Player>** 라는 것입니다. <br/>
+players와 같은 컬렉션 혹은 인스턴스는 Java의 특성으로 인해 **Call by reference** 입니다. <br/>
+즉, **리턴을 하지 않더라도 players는 변경 상태를 유지**하는 것입니다. <br/>
+그럼에도 굳이 변경된 players를 리턴하는 이유는 receiveCardAllPlayers의 목적을 명확히 하기 위함입니다. <br/>
+"receiveCardAllPlayers는 CardDeck과 List<Player>를 인자로 받아 특별한 과정을 통해 변경된 List<Player>를 준다." <br/>
+이것이 receiveCardAllPlayers의 목적입니다. <br/>
+만약 void로 할 경우 List<Player>가 변경은 될지언정, 최종적으로 무얼 위함인지 코드상에서 확인하기 어렵고 목적이 모호해지게 됩니다.<br/>
+좋은 메소드란 결국 **어떤 인자가 필요하고, 그 인자를 통해 어떤 결과를 뱉어내는지 명확한 것**이라고 생각합니다. 
+<br/>
+자 그럼 위 Game의 변경된 코드에 맞춰 Player, Gamer, Dealer 코드를 수정하겠습니다. <br/>
  
+**Player.java**
+```
+public interface Player {
+    void receiveCard(Card card);
+
+    void showCards();
+
+    List<Card> openCards();
+
+    void turnOff();
+
+    void turnOn();
+
+    boolean isTurn();
+}
+```
+
+**Gamer.java + Dealer.java**
+```
+public class Gamer implements Player {
+    private List<Card> cards;
+    private boolean turn;
+
+    .....
+    
+    @Override
+    public void turnOff() {
+        this.setTurn(false);
+    }
+
+    @Override
+    public void turnOn() {
+        this.setTurn(true);
+    }
+
+    @Override
+    public boolean isTurn() {
+        return this.turn;
+    }
+
+    private void setTurn(boolean turn) {
+        this.turn = turn;
+    }
+}
+
+
+public class Dealer implements Player {
+    private List<Card> cards;
+    private boolean turn;
+
+    .....
+    
+    @Override
+    public void turnOff() {
+        this.setTurn(false);
+    }
+
+    @Override
+    public void turnOn() {
+        this.setTurn(true);
+    }
+
+    @Override
+    public boolean isTurn() {
+        return this.turn;
+    }
+
+    private void setTurn(boolean turn) {
+        this.turn = turn;
+    }
+}
+
+```
+
+Dealer와 Gamer의 대결까지도 구현이 되었습니다. <br/>
+자 그럼 마지막으로 게임의 결과를 나타내주는 Rule 객체를 구현해보겠습니다. <br/>
+
+### 2-4. Rule 구현하기
+
 
 
 ### 후기

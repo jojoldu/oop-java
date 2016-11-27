@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Dealer implements Player {
     private List<Card> cards;
-    private boolean turnOff;
+    private boolean turn;
 
     private static final int CAN_RECEIVE_POINT = 16;
 
@@ -22,6 +22,7 @@ public class Dealer implements Player {
     public void receiveCard(Card card) {
         if(this.isReceiveCard()){
             this.cards.add(card);
+            this.showCards();
         }else{
             System.out.println("카드의 총 합이 17이상입니다. 더이상 카드를 받을 수 없습니다.");
         }
@@ -59,12 +60,21 @@ public class Dealer implements Player {
     }
 
     @Override
-    public void setTurnOff(boolean turnOff) {
-        this.turnOff = turnOff;
+    public void turnOff() {
+        this.setTurn(false);
     }
 
     @Override
-    public boolean isTurnOff() {
-        return this.turnOff;
+    public void turnOn() {
+        this.setTurn(true);
+    }
+
+    @Override
+    public boolean isTurn() {
+        return this.turn;
+    }
+
+    private void setTurn(boolean turn) {
+        this.turn = turn;
     }
 }

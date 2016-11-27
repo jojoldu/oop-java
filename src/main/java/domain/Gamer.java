@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Gamer implements Player {
     private List<Card> cards;
-    private boolean turnOff;
+    private boolean turn;
 
     public Gamer() {
         cards = new ArrayList<>();
@@ -19,6 +19,7 @@ public class Gamer implements Player {
     @Override
     public void receiveCard(Card card) {
         this.cards.add(card);
+        this.showCards();
     }
 
     @Override
@@ -40,12 +41,21 @@ public class Gamer implements Player {
     }
 
     @Override
-    public void setTurnOff(boolean turnOff) {
-        this.turnOff = turnOff;
+    public void turnOff() {
+        this.setTurn(false);
     }
 
     @Override
-    public boolean isTurnOff() {
-        return this.turnOff;
+    public void turnOn() {
+        this.setTurn(true);
+    }
+
+    @Override
+    public boolean isTurn() {
+        return this.turn;
+    }
+
+    private void setTurn(boolean turn) {
+        this.turn = turn;
     }
 }

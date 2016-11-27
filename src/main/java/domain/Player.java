@@ -14,7 +14,9 @@ public interface Player {
 
     List<Card> openCards();
 
-    void setTurnOff(boolean turnOff);
+    void turnOff();
 
-    boolean isTurnOff();
+    void turnOn();
+
+    boolean isTurn();
 }
