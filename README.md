@@ -1317,7 +1317,296 @@ Scanner로 Gamer의 name을 입력 받을 수 있지만 여기선 생성자에 �
 아무쪼록 부족한 내용이지만 여기까지 읽어주셔서 정말 감사드립니다. <br/>
 다음에 더 좋은 내용으로 또 뵙겠습니다.
 
+### 코드리뷰
+이 프로젝트를 OKKY에 올리고 나서 OKKY의 연예인이신 [fender님의 리뷰](http://okky.kr/article/362491?note=1147582)을 받을 수 있었습니다. <br/>
+개인적으로는 블로그에 글을 올리고나서 OKKY에 항상 바로 올리는 이유가 이런 선배님들의 피드백때문입니다. <br/>
+바로 리뷰에 대한 수정을 진행하려고 했으나, 이전부터 작업하던 [Spring AOP 정리](http://jojoldu.tistory.com/69)를 마무리하는게 먼저라 시작이 늦었습니다. <br/>
+다행히 이번주 평일전체를 연차로 쉴수 있게되어 AOP 내용도 정리하고, 이제라도 리뷰 수정을 진행할 수 있게 되었습니다. <br/>
+fender님의 리뷰에서 나온 수정사항들은 아래와 같습니다. <br>
 
+* Card의 패턴과 끗수를 enum으로
+* 자연스러운 네이밍
+  - isReceiveCard, receiveCardAllPlayers 등은 정상적인 문법은 아님
+* list 대신 stack을 사용
+* API와 View영역을 분리
+  - Player.showCards()가 과연 player의 역할인지
+  - receiveCard는 호출자가 그 결과를 알 수 있는지
+* 테스트 코드 작성
+
+너무 많죠? ㅠㅠ... <br/>
+
+![좌절](./images/좌절.jpg)
+
+(으헝헝헝) <br/><br/>
+
+제가.. 아직 많이 부족하구나 라고 느끼게 되었습니다. <br/>
+자! 그래서 지금부터 이 부분을 하나하나 고쳐나가보겠습니다. <br/>
+
+### 코드리뷰 - 반영
+제일 먼저 Card의 패턴과 끗수를 enum으로 변경해보겠습니다. <br/>
+이게 왜 문제가 되냐하면 enum이 아닌 문자열 배열 혹은 단순 숫자로 입력을 받도록 하게 되어도 체크가 안되기 때문입니다. <br/>
+enum을 사용하게 되면 제가 제시한 것외에는 허용되지 않기에 아예 Exception이 발생하지만, 단순 문자열과 숫자로 표현하게 되면 컴파일러에서는 잘못된 값이 들어온지 알수가 없습니다. <br/>
+enum의 사용법은 [넥스트리 블로그](http://www.nextree.co.kr/p11686/) 를 참고하시면 좋습니다. <br/>
+패턴과 끗수 중 패턴을 먼저 진행하겠습니다. <br/>
+단! 여기서부터는 테스트코드를 작성하면서 수정을 진행해나가겠습니다. <br/>
+테스트 프레임워크는 가장 무난한 Junit을 사용할 예정입니다. 그래서 build.gradle에 아래와 같이 Junit 의존성을 추가하겠습니다. <br/>
+<br/>
+**build.gradle**
+```
+group 'java'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    
+    // Junit 의존성 추가
+    compile group: 'junit', name: 'junit', version: '4.11'
+}
+```
+의존성이 추가되었다면 본격적으로 리팩토링을 진행해보겠습니다. <br/>
+Card의 기존 코드를 다음과 같이 수정하겠습니다. <br/>
+
+**Card.java**
+```
+package domain;
+
+/**
+ * Created by jojoldu@gmail.com on 2016-11-17.
+ * Blog : http://jojoldu.tistory.com
+ * Github : http://github.com/jojoldu
+ */
+public class Card {
+    private Pattern pattern;
+    private String denomination;
+    private int point;
+
+    public Card(Pattern pattern, int index) {
+        ...
+    }
+    
+    public Pattern getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(Pattern pattern) {
+        this.pattern = pattern;
+    }    
+    ....
+
+    public enum Pattern {
+        SPADE("spade"),
+        HEART("heart"),
+        DIAMOND("diamond"),
+        CLUB("club");
+
+        private String value;
+
+        Pattern() {}
+
+        Pattern(String value) {
+            this.value = value;
+        }
+    }
+}
+```
+pattern의 타입을 문자열이 아닌 Pattern이란 enum으로 대체하였습니다.<br/>
+Pattern enum의 경우 Card외에는 사용되는 곳이 없기에 inner type으로 (즉, Card 내부에 선언) 하였습니다. <br/>
+Card의 생성자 조건이 변경되었기에, CardDeck 역시 코드를 수정하겠습니다. <br/>
+
+**CardDeck.java**
+```
+public class CardDeck{
+    
+    ....
+
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
+
+        for(Card.Pattern pattern : Card.Pattern.values()){
+            for(int i=1; i<=CARD_COUNT; i++) {
+                Card card = new Card(pattern, i);
+                cards.add(card);
+            }
+        }
+        return cards;
+    }
+    
+    ....   
+}
+```
+그전에 있던 문자열 배열인 patterns를 제거하고, Card내부의 Pattern enum으로 Card 인스턴스 생성 코드를 수정하였습니다. <br/>
+enum.values() 를 사용할 경우 그 결과는 해당 enum이 갖고 있는 모든 타입의 
+Java에서 enum의 타입들을 전부 순회하기 위해서는 해당 타입.values() 메소드를 사용하면 됩니다. <br/>
+이 경우 values 메소드의 결과는 **해당 enum이 갖고 있는 모든 타입들**이기 때문에 변경에 따라 코드 수정이 필요없게 됩니다. <br/>
+Card와 CardDeck의 수정이 완료되었기에 이를 테스트코드로 검증해보겠습니다. <br/>
+테스트 구조는 아래와 같이 src/test/java 아래에 ApplicationTest.java 입니다. <br/>
+
+![테스트구조](./images/테스트구조.png)
+
+테스트 코드는 아래와 같습니다. <br/>
+```
+import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public class ApplicationTest {
+
+    @Test
+    public void test_카드패턴비교() {
+        CardDeck cardDeck = new CardDeck();
+        List<Card> cards = cardDeck.getCards();
+        assertThat(cards.get(0).getPattern(), is(Card.Pattern.SPADE));
+        assertThat(cards.get(13).getPattern(), is(Card.Pattern.HEART));
+    }
+}
+```
+테스트 코드 작성이 어색하신 분들은 Junit이 Spring 환경에서만 구동되는 것으로 오해를 많이 하십니다. <br/>
+하지만 Junit은 **Java** 테스트 프레임워크입니다. <br/>
+즉, 웹 프레임워크와 무관하게 Java 환경이면 구동이 가능합니다. <br/>
+테스트 코드는 단순합니다. <br/>
+CardDeck을 생성하고, CardDeck의 0번째와 13번째 카드를 뽑아서 그게 SPADE와 HEART 패턴인지 검증하는 것입니다. <br/>
+왜냐하면 CardDeck의 카드들은 Pattern의 타입이 순차적으로 등록되어 0~12까지는 SPADE가 13~25까지는 HEART로 되어있기 때문입니다. <br/>
+테스트를 실행해보면!! <br/>
+
+![패턴테스트결과](./images/패턴테스트결과.png)
+
+성공적으로 테스트가 통과되었음을 확인할 수 있습니다. <br/>
+이 기세를 몰아 끗수(denomination)도 enum으로 변경해보겠습니다. <br/>
+<br/>
+**Card.java**
+```
+public class Card {
+    private Pattern pattern;
+    private Denomination denomination;
+
+    public Card(Pattern pattern, Denomination denomination) {
+        this.pattern = pattern;
+        this.denomination = denomination;
+    }
+
+    public Denomination getDenomination() {
+        return denomination;
+    }
+
+    public void setDenomination(Denomination denomination) {
+        this.denomination = denomination;
+    }
+
+    .....
+    
+    public enum Denomination {
+        ACE("A", 1),
+        TWO("2", 2),
+        THREE("3", 3),
+        FOUR("4", 4),
+        FIVE("5", 5),
+        SIX("6", 6),
+        SEVEN("7", 7),
+        EIGHT("8", 8),
+        NINE("9", 9),
+        TEN("10", 10),
+        JACK("J", 10),
+        QUEEN("Q", 10),
+        KING("K", 10);
+
+        private String mark;
+        private int point;
+
+        Denomination() {
+        }
+
+        Denomination(String mark, int point) {
+            this.mark = mark;
+            this.point = point;
+        }
+        
+        public int getPoint() {
+            return this.point;
+        }        
+    }
+}
+```
+
+Pattern과 마찬가지로 inner enum으로 Denomination을 선언하였습니다. <br/>
+이전에 String denomination과 int point로 선언된 부분을 전부 enum에 담았습니다. <br/>
+생각해보면 **point도 Card의 역할보다는 끗수의 역할**에 더 가깝다는 생각에 Denomination으로 옮겼습니다. <br/>
+이로 인해 오히려 생성자 코드가 훨씬 간결해졌습니다. <br/>
+다음으로 CardDeck을 수정하겠습니다. <br/>
+<br/>
+**CardDeck.java**
+```
+public class CardDeck{
+    private List<Card> cards;
+
+    public CardDeck() {
+        cards = this.generateCards();
+    }
+
+    private List<Card> generateCards() {
+        List<Card> cards = new LinkedList<>();
+
+        for(Card.Pattern pattern : Card.Pattern.values()){
+            for(Card.Denomination denomination : Card.Denomination.values()){
+                Card card = new Card(pattern, denomination);
+                cards.add(card);
+            }
+        }
+        return cards;
+    }
+    
+    ....
+}
+```
+
+int와 String으로 분리되었던 끗수를 enum에 담으니 CardDeck역시 코드가 훨씬 간결해졌습니다. <br/>
+더불어 기존의 큰 문제였던, 값의 제한이 없다는 문제를 **enum으로 완전히 그 범위를 제한**할 수 있게 되었습니다. <br/>
+자 그럼 정상적으로 기능이 작동되는지 확인하기 위해 테스트 코드를 작성해보겠습니다. <br/>
+<br/>
+**ApplicationTest.java**
+```
+public class ApplicationTest {
+
+    private CardDeck cardDeck;
+    private List<Card> cards;
+
+    @Before
+    public void setup() {
+        cardDeck = new CardDeck();
+        cards = cardDeck.getCards();
+    }
+
+    @Test
+    public void test_카드패턴비교 () {
+        assertThat(cards.get(0).getPattern(), is(Card.Pattern.SPADE));
+        assertThat(cards.get(13).getPattern(), is(Card.Pattern.HEART));
+    }
+
+    @Test
+    public void test_카드끗수비교 () {
+        assertThat(cards.get(0).getDenomination(), is(Card.Denomination.ACE));
+        assertThat(cards.get(0).getDenomination().getPoint(), is(1));
+    }
+}
+```
+이번 테스트 코드는 이전 코드를 조금 더 수정하였습니다. <br/>
+CardDeck인스턴스를 생성하고, cards를 받는 것은 이전의 패턴비교 테스트와 현재 끗수테스트 모두에서 사용하고, 앞으로도 사용할 확률이 높기에 **모든 테스트에서 적용되도록** @Before 어노테이션을 사용하였습니다. <br/>
+@Before 어노테이션은 **각 @Test별로 테스트 시작전에 수행**되도록 하는 어노테이션입니다. <br/>
+자 그럼 첫번째 리뷰대상이였던 enum과 관련된 문제가 해결되었습니다!! <br/>
+아울러 테스트코드 작성도 같이 진행될 수 있게 되었습니다! <br/>
+
+![1타2피](./images/1타2피.bmp)
+
+출발이 순조로운것 같습니다! <br/>
+그럼 다음 리팩토링 대상으로 가보겠습니다. <br/>
+2번째 대상은 
 ### 참고 자료
 * [자바지기 박재성님의 강의](https://github.com/jojoldu/fastcampus-java)
 * [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)

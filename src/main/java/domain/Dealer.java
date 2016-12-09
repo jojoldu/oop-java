@@ -36,7 +36,7 @@ public class Dealer implements Player {
     private int getPointSum(){
         int sum = 0;
         for(Card card : cards) {
-            sum += card.getPoint();
+            sum += card.getDenomination().getPoint();
         }
 
         return sum;
