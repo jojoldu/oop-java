@@ -1342,7 +1342,7 @@ fender님의 리뷰에서 나온 수정사항들은 아래와 같습니다. <br>
 제가.. 아직 많이 부족하구나 라고 느끼게 되었습니다. <br/>
 자! 그래서 지금부터 이 부분을 하나하나 고쳐나가보겠습니다. <br/>
 
-### 코드리뷰 - 반영
+### 코드리뷰 - 반영 (1)
 제일 먼저 Card의 패턴과 끗수를 enum으로 변경해보겠습니다. <br/>
 이게 왜 문제가 되냐하면 enum이 아닌 문자열 배열 혹은 단순 숫자로 입력을 받도록 하게 되어도 체크가 안되기 때문입니다. <br/>
 enum을 사용하게 되면 제가 제시한 것외에는 허용되지 않기에 아예 Exception이 발생하지만, 단순 문자열과 숫자로 표현하게 되면 컴파일러에서는 잘못된 값이 들어온지 알수가 없습니다. <br/>
@@ -1604,9 +1604,95 @@ CardDeck인스턴스를 생성하고, cards를 받는 것은 이전의 패턴비
 
 ![1타2피](./images/1타2피.bmp)
 
+(1타 2피!)<br/><br/>
 출발이 순조로운것 같습니다! <br/>
 그럼 다음 리팩토링 대상으로 가보겠습니다. <br/>
-2번째 대상은 
+2번째 대상은 ```List<Card> card```입니다. <br/>
+이 부분은 get+remove를 사용하는것보다는 pop을 사용하는 것이 의미상 더 적절한 뜻이 되기도하고 코드가 더 깔끔해지기 때문에 List를 Stack으로 변경하겠습니다. <br/>
+하는 김에 기존에 갖고 있던 성능상 이슈도 같이 해결하겠습니다. <br/>
+기존의 성능상 이슈는 무엇이냐하면, draw 할때마다 **매번 랜덤하게 카드를 뽑는것**입니다. <br/>
+draw 할 때마다 랜덤으로 뽑기 위해 매번 랜덤함수를 실행시키는 것은 그만큼 draw 할 때마다 성능상 이슈를 발생시킵니다. <br/>
+그래서 이를 해결하기 위해 처음에 **카드덱을 생성하는 시점에서 카드들을 랜덤으로 정렬** 하겠습니다. <br/>
+이렇게 하면 이미 랜덤정렬이 된 카드들 사이에서 맨위부터 차례로 뽑기만 하면 성능상의 이슈가 함께 해결이 되는 것입니다. <br/>
+<br/>
+**CardDeck.java**
+```
+public class CardDeck{
+    private Stack<Card> cards;
+
+    public CardDeck() {
+        this.cards = this.generateCards();
+        Collections.shuffle(this.cards);
+    }
+
+    private Stack<Card> generateCards() {
+        Stack<Card> cards = new Stack<>();
+
+        for(Card.Pattern pattern : Card.Pattern.values()){
+            for(Card.Denomination denomination : Card.Denomination.values()){
+                Card card = new Card(pattern, denomination);
+                cards.push(card);
+            }
+        }
+        return cards;
+    }
+
+    public Stack<Card> getCards() {
+        return cards;
+    }
+
+    public Card draw(){
+        return this.cards.pop();
+    }
+    
+    ....
+}    
+```
+CardDeck은 List를 Stack으로 변경한 것외에 큰 변화는 2가지 입니다. <br/><br/>
+
+* Collections.shuffle() 추가
+* draw 메소드가 pop()으로만 처리
+
+Stack의 pop메소드는 추출이란 의미로 **데이터를 뽑아내고 제거**를 같이 하는 메소드 입니다.<br/>
+(제거하지 않고 값만 받으려면 peek 메소드를 사용하면 됩니다.)<br/>
+이렇게 코드가 수정이 되면, 의도했던 대로 CardDeck 생성 시점에서 52개의 카드들이 생성되고 랜덤정렬이 됩니다. <br/>
+그리고 draw할때도 특별히 다른 행위 없이 pop으로만 처리가 되니 성능상 이슈도 함께 해결이 되었습니다. <br/>
+그럼 해당 기능이 잘 작성되었는지 확인하기 위해 테스트코드를 다시 작성해보겠습니다. <br/>
+
+```
+    @Test
+    public void test_List를Stack으로변환() {
+        assertThat(cardDeck.getCards().size(), is(52));
+        cardDeck.draw();
+        assertThat(cardDeck.getCards().size(), is(51));
+        cardDeck.draw();
+        assertThat(cardDeck.getCards().size(), is(50));
+        cardDeck.draw();
+        assertThat(cardDeck.getCards().size(), is(49));
+    }
+```
+
+카드가 랜덤으로 정렬이 되기 때문에 특별한 Card 값을 가지고 테스트를 할수는 없고, draw 할 때마다 cards.size가 감소하는지로 검증을 하겠습니다. <br/>
+디버깅 모드로 현재 테스트를 실행해보면 <br/><br/>
+
+![stack 랜덤](./images/stack랜덤.png)
+
+(카드들의 랜덤정렬을 확인) <br/><br/>
+
+우선 랜덤정렬된 것을 확인후! <br/>
+
+![stack 테스트 결과](./images/stack테스트결과.png)
+
+(테스트 결과!)<br/><br/>
+
+정상적으로 pop이 되는것을 확인할 수 있습니다! <br/>
+짧지만 코드리뷰 내용 중 2가지 문제를 해결하였습니다. <br/>
+당시에는 몰랐지만 다시보니 부족함이 많이 느껴지는것 같습니다! <br/>
+남은 리뷰 내용을 반영하면서 점점 더 좋은 코드로 발전시켜보겠습니다. <br/>
+
+### 코드리뷰 - 반영 (2)
+
+
 ### 참고 자료
 * [자바지기 박재성님의 강의](https://github.com/jojoldu/fastcampus-java)
 * [조영호님의 객체지향의 사실과 오해](http://www.yes24.com/24/goods/18249021)
